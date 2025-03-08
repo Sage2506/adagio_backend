@@ -2,35 +2,35 @@ require "test_helper"
 
 class Api::V1::AlumnsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @api_v1_alumn = api_v1_alumns(:one)
+    @alumn = alumns(:one)
   end
 
   test "should get index" do
-    get api_v1_alumns_url, as: :json
+    get alumns_url, as: :json
     assert_response :success
   end
 
-  test "should create api_v1_alumn" do
+  test "should create alumn" do
     assert_difference("Api::V1::Alumn.count") do
-      post api_v1_alumns_url, params: { api_v1_alumn: { address: @api_v1_alumn.address, email: @api_v1_alumn.email, is_active: @api_v1_alumn.is_active, last_name: @api_v1_alumn.last_name, name: @api_v1_alumn.name, phone_number: @api_v1_alumn.phone_number } }, as: :json
+      post alumns_url, params: { alumn: { address: @alumn.address, email: @alumn.email, is_active: @alumn.is_active, last_name: @alumn.last_name, name: @alumn.name, phone_number: @alumn.phone_number } }, as: :json
     end
 
     assert_response :created
   end
 
-  test "should show api_v1_alumn" do
-    get api_v1_alumn_url(@api_v1_alumn), as: :json
+  test "should show alumn" do
+    get alumn_url(@alumn), as: :json
     assert_response :success
   end
 
-  test "should update api_v1_alumn" do
-    patch api_v1_alumn_url(@api_v1_alumn), params: { api_v1_alumn: { address: @api_v1_alumn.address, email: @api_v1_alumn.email, is_active: @api_v1_alumn.is_active, last_name: @api_v1_alumn.last_name, name: @api_v1_alumn.name, phone_number: @api_v1_alumn.phone_number } }, as: :json
+  test "should update alumn" do
+    patch alumn_url(@alumn), params: { alumn: { address: @alumn.address, email: @alumn.email, is_active: @alumn.is_active, last_name: @alumn.last_name, name: @alumn.name, phone_number: @alumn.phone_number } }, as: :json
     assert_response :success
   end
 
-  test "should destroy api_v1_alumn" do
+  test "should destroy alumn" do
     assert_difference("Api::V1::Alumn.count", -1) do
-      delete api_v1_alumn_url(@api_v1_alumn), as: :json
+      delete alumn_url(@alumn), as: :json
     end
 
     assert_response :no_content
