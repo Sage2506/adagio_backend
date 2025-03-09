@@ -13,6 +13,7 @@ Rails.application.routes.draw do
       resources :payments
       resources :products
       resources :users
+      resources :plans
       post "/auth/login", to: "authentication#login"
     end
   end
