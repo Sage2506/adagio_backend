@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_08_181707) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_09_133352) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "alumn_guardians", force: :cascade do |t|
+    t.bigint "alumn_id", null: false
+    t.bigint "guardian_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["alumn_id"], name: "index_alumn_guardians_on_alumn_id"
+    t.index ["guardian_id"], name: "index_alumn_guardians_on_guardian_id"
+  end
 
   create_table "alumns", force: :cascade do |t|
     t.string "name"
@@ -48,4 +57,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_181707) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_foreign_key "alumn_guardians", "alumns"
+  add_foreign_key "alumn_guardians", "guardians"
 end
