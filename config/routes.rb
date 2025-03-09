@@ -8,12 +8,13 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :alumn_guardians
       resources :alumns
+      resources :classrooms
       resources :guardians
       resources :orders
       resources :payments
+      resources :plans
       resources :products
       resources :users
-      resources :plans
       post "/auth/login", to: "authentication#login"
     end
   end
