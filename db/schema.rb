@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_09_155001) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_09_160257) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -43,6 +43,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_09_155001) do
     t.boolean "is_active"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "alumn_id", null: false
+    t.bigint "payment_id"
+    t.bigint "product_id", null: false
+    t.integer "quantity"
+    t.integer "status"
+    t.float "total"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["alumn_id"], name: "index_orders_on_alumn_id"
+    t.index ["payment_id"], name: "index_orders_on_payment_id"
+    t.index ["product_id"], name: "index_orders_on_product_id"
+    t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
   create_table "payments", force: :cascade do |t|
@@ -79,6 +96,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_09_155001) do
 
   add_foreign_key "alumn_guardians", "alumns"
   add_foreign_key "alumn_guardians", "guardians"
+  add_foreign_key "orders", "alumns"
+  add_foreign_key "orders", "payments"
+  add_foreign_key "orders", "products"
+  add_foreign_key "orders", "users"
   add_foreign_key "payments", "alumns"
   add_foreign_key "payments", "users"
 end

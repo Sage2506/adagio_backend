@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  alumn: one
+  payment: one
+  product: one
+  quantity: 1
+  status: 1
+  total: 1.5
+  description: MyString
+
+two:
+  user: two
+  alumn: two
+  payment: two
+  product: two
+  quantity: 1
+  status: 1
+  total: 1.5
+  description: MyString

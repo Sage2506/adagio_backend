@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       resources :alumn_guardians
       resources :alumns
       resources :guardians
+      resources :orders
       resources :payments
       resources :products
       resources :users
