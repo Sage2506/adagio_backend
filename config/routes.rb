@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       resources :plans
       resources :products
       resources :subscriptions
+      resources :subscription_payments
       resources :users
       resources :user_disciplines
       resources :plan_disciplines

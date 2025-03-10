@@ -1,4 +1,5 @@
-class SubscriptionsController < ApplicationController
+class Api::V1::SubscriptionsController < ApplicationController
+  before_action :authenticate_request!
   before_action :set_subscription, only: %i[ show update destroy ]
 
   # GET /subscriptions
