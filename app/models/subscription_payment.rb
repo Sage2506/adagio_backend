@@ -1,4 +1,4 @@
 class SubscriptionPayment < ApplicationRecord
-  belongs_to :subcription
+  belongs_to :subscription
   belongs_to :payment
 end

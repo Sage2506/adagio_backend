@@ -11,15 +11,16 @@ Rails.application.routes.draw do
       resources :classrooms
       resources :disciplines
       resources :guardians
+      resources :lessons
       resources :orders
       resources :payments
+      resources :plan_disciplines
       resources :plans
       resources :products
-      resources :subscriptions
       resources :subscription_payments
-      resources :users
+      resources :subscriptions
       resources :user_disciplines
-      resources :plan_disciplines
+      resources :users
       post "/auth/login", to: "authentication#login"
     end
   end
