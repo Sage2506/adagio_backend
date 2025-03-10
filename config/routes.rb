@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       resources :products
       resources :users
       resources :user_disciplines
+      resources :plan_disciplines
       post "/auth/login", to: "authentication#login"
     end
   end
