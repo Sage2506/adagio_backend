@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_10_035931) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_10_041600) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -58,6 +58,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_10_035931) do
     t.boolean "is_active"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "lessons", force: :cascade do |t|
+    t.bigint "plan_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "classroom_id", null: false
+    t.datetime "schedule"
+    t.integer "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["classroom_id"], name: "index_lessons_on_classroom_id"
+    t.index ["plan_id"], name: "index_lessons_on_plan_id"
+    t.index ["user_id"], name: "index_lessons_on_user_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -160,6 +173,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_10_035931) do
 
   add_foreign_key "alumn_guardians", "alumns"
   add_foreign_key "alumn_guardians", "guardians"
+  add_foreign_key "lessons", "classrooms"
+  add_foreign_key "lessons", "plans"
+  add_foreign_key "lessons", "users"
   add_foreign_key "orders", "alumns"
   add_foreign_key "orders", "payments"
   add_foreign_key "orders", "products"
