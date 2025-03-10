@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  plan: one
+  alumn: one
+  due_date: 2025-03-09
+  status: 1
+  last_payment_date: 2025-03-09
+
+two:
+  plan: two
+  alumn: two
+  due_date: 2025-03-09
+  status: 1
+  last_payment_date: 2025-03-09

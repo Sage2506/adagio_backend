@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_10_034550) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_10_035334) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -115,6 +115,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_10_034550) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "subscriptions", force: :cascade do |t|
+    t.bigint "plan_id", null: false
+    t.bigint "alumn_id", null: false
+    t.date "due_date"
+    t.integer "status"
+    t.date "last_payment_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["alumn_id"], name: "index_subscriptions_on_alumn_id"
+    t.index ["plan_id"], name: "index_subscriptions_on_plan_id"
+  end
+
   create_table "user_disciplines", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "discipline_id", null: false
@@ -147,6 +159,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_10_034550) do
   add_foreign_key "payments", "users"
   add_foreign_key "plan_disciplines", "disciplines"
   add_foreign_key "plan_disciplines", "plans"
+  add_foreign_key "subscriptions", "alumns"
+  add_foreign_key "subscriptions", "plans"
   add_foreign_key "user_disciplines", "disciplines"
   add_foreign_key "user_disciplines", "users"
 end
