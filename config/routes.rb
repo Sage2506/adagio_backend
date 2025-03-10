@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :alumn_guardians
       resources :alumns
+      resources :assistances
       resources :classrooms
       resources :disciplines
       resources :guardians
