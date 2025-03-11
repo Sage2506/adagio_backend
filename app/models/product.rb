@@ -1,2 +1,3 @@
-class Api::V1::Product < ApplicationRecord
+class Product < ApplicationRecord
+  has_many :orders
 end

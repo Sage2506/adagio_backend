@@ -38,11 +38,11 @@ class Api::V1::UsersController < ApplicationController
   end
 
   private
-    def user_params
-      params.permit(:email, :name, :last_name, :password)
-    end
-
     def set_user
       @user = User.find(params[:id])
+    end
+
+    def user_params
+      params.expect(user: [ :email, :name, :last_name, :password, :role ])
     end
 end
