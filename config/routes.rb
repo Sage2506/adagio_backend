@@ -6,8 +6,26 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
   namespace :api do
     namespace :v1 do
+      resources :alumn_guardians
+      resources :alumns
+      resources :assistances
+      resources :classrooms
+      resources :disciplines
+      resources :guardians
+      resources :lessons
+      resources :orders
+      resources :payments
+      resources :plan_disciplines
+      resources :plans
+      resources :products
+      resources :subscription_payments
+      resources :subscriptions
+      resources :user_disciplines
       resources :users
-      post "/auth/login", to: "authentication#login"
+      # post "/auth/login", to: "authentication#login"
+      # config/routes.rb
+      post "auth/login", to: "auth#login"
+      get "profile", to: "api#profile"  # Protected endpoint
     end
   end
   # Defines the root path route ("/")

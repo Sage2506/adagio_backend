@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  plan: one
+  user: one
+  classroom: one
+  schedule: 2025-03-09 21:16:00
+  status: 1
+
+two:
+  plan: two
+  user: two
+  classroom: two
+  schedule: 2025-03-09 21:16:00
+  status: 1

@@ -1,5 +1,10 @@
 class User < ApplicationRecord
   require "securerandom"
+  has_many :lessons
+  has_many :orders
+  has_many :payments
+  has_many :user_disciplines
+  has_many :disciplines, through: :user_disciplines
 
   has_secure_password
 
