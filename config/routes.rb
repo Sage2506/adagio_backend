@@ -22,7 +22,10 @@ Rails.application.routes.draw do
       resources :subscriptions
       resources :user_disciplines
       resources :users
-      post "/auth/login", to: "authentication#login"
+      # post "/auth/login", to: "authentication#login"
+      # config/routes.rb
+      post "auth/login", to: "auth#login"
+      get "profile", to: "api#profile"  # Protected endpoint
     end
   end
   # Defines the root path route ("/")
