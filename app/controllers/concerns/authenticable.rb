@@ -10,11 +10,11 @@ module Authenticable
   def authenticate_request!
     header = request.headers["Authorization"]
     token = header&.split("Bearer ")&.last
+    begin
     decoded = CognitoAuth.verify_token(token)
-    if decoded[0][:error]
-      render json: { error: decoded[:error] }, status: :unauthorized
-    else
-      @current_user_email = decoded[0]["email"]
+    @current_user_email = decoded[0]["email"]
+    rescue JWT::DecodeError => e
+      render json: { error: "Invalid token: #{e.message}" }, status: 401
     end
   end
 end

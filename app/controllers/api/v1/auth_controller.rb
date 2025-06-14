@@ -14,4 +14,15 @@ class Api::V1::AuthController < ApplicationController
       render json: { error: error_message, code: auth_response[:code] }, status: :unauthorized
     end
   end
+
+  # Protected endpoint (example)
+  def protected
+    token = request.headers["Authorization"]&.split("Bearer ")&.last
+    begin
+      decoded = CognitoService.new.verify_token(token)
+      render json: { message: "Hello, #{decoded[0]['email']}!" }
+    rescue JWT::DecodeError => e
+      render json: { error: "Invalid token: #{e.message}" }, status: 401
+    end
+  end
 end
