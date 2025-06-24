@@ -1,12 +1,13 @@
 class Api::V1::AlumnsController < ApplicationController
+  include Pagy::Backend
   before_action :authenticate_request!
   before_action :set_alumn, only: %i[ show update destroy ]
 
   # GET /api/v1/alumns
   def index
-    @alumns = Alumn.all
-
-    render json: @alumns
+    @q = Alumn.ransack(params[:q])
+    pagy, records = pagy(@q.result(distinct: true))
+    render json: { data: records, links: pagy_jsonapi_links(pagy) }
   end
 
   # GET /api/v1/alumns/1
