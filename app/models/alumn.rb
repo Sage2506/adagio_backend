@@ -5,6 +5,11 @@ class Alumn < ApplicationRecord
   has_many :orders
   has_many :payments
   has_one :subscriptions
+  before_create :set_defaults
+
+  def set_defaults
+    self.is_active = true
+  end
 
   def self.ransackable_attributes(auth_object = nil)
     %w[name] + _ransackers.keys

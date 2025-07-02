@@ -19,7 +19,7 @@ class Api::V1::UserDisciplinesController < ApplicationController
     @user_discipline = UserDiscipline.new(user_discipline_params)
 
     if @user_discipline.save
-      render json: @user_discipline, status: :created, location: @user_discipline
+      render json: @user_discipline, status: :created
     else
       render json: @user_discipline.errors, status: :unprocessable_entity
     end

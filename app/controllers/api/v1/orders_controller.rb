@@ -19,7 +19,7 @@ class Api::V1::OrdersController < ApplicationController
     @order = Order.new(order_params)
 
     if @order.save
-      render json: @order, status: :created, location: @order
+      render json: @order, status: :created
     else
       render json: @order.errors, status: :unprocessable_entity
     end

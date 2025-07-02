@@ -19,7 +19,7 @@ class Api::V1::AlumnGuardiansController < ApplicationController
     @alumn_guardian = AlumnGuardian.new(alumn_guardian_params)
 
     if @alumn_guardian.save
-      render json: @alumn_guardian, status: :created, location: @alumn_guardian
+      render json: @alumn_guardian, status: :created
     else
       render json: @alumn_guardian.errors, status: :unprocessable_entity
     end

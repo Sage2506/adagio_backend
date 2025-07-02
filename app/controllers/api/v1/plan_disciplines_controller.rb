@@ -19,7 +19,7 @@ class Api::V1::PlanDisciplinesController < ApplicationController
     @plan_discipline = PlanDiscipline.new(plan_discipline_params)
 
     if @plan_discipline.save
-      render json: @plan_discipline, status: :created, location: @plan_discipline
+      render json: @plan_discipline, status: :created
     else
       render json: @plan_discipline.errors, status: :unprocessable_entity
     end
