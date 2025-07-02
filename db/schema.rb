@@ -33,7 +33,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_02_202448) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "birth_date"
-    t.text "special_med_conditions"
+    t.text "special_med_conditions", default: "None", null: false
   end
 
   create_table "assistances", force: :cascade do |t|

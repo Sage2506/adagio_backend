@@ -56,6 +56,6 @@ class Api::V1::AlumnsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def alumn_params
-      params.expect(alumn: [ :name, :last_name, :address, :phone_number, :email, :is_active, :birth_date, :guardian_id ])
+      params.expect(alumn: [ :name, :last_name, :address, :phone_number, :email, :is_active, :birth_date, :guardian_id, :special_med_conditions ])
     end
 end
