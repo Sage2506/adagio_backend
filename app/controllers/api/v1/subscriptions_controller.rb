@@ -1,12 +1,26 @@
 class Api::V1::SubscriptionsController < ApplicationController
+  include Pagy::Backend
   before_action :authenticate_request!
   before_action :set_subscription, only: %i[ show update destroy ]
 
   # GET /subscriptions
   def index
-    @subscriptions = Subscription.all
+    @q = Subscription.includes(:alumn, :plan).ransack(params[:q])
 
-    render json: @subscriptions
+    # Add full_name search if parameter exists
+    if params[:full_name].present?
+      @q = Subscription.includes(:alumn, :plan).ransack({
+        alumn_full_name_cont: params[:full_name].downcase
+      })
+    end
+
+    pagy, records = pagy(@q.result(distinct: true))
+
+    render json: {
+      data: records.as_json(include: [ :alumn, :plan ]),
+      links: pagy_jsonapi_links(pagy),
+      pages: pagy.series.map { |item| item == :gap ? item : item.to_i }
+    }
   end
 
   # GET /subscriptions/1

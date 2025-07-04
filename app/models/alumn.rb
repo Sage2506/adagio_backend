@@ -19,8 +19,18 @@ class Alumn < ApplicationRecord
     subscription&.id
   end
 
+  ransacker :full_name, formatter: proc { |v| v.downcase } do |parent|
+    Arel::Nodes::NamedFunction.new("LOWER", [
+      Arel::Nodes::NamedFunction.new("CONCAT", [
+        parent.table[:name],
+        Arel::Nodes.build_quoted(" "),
+        parent.table[:last_name]
+      ])
+    ])
+  end
+
   def self.ransackable_attributes(auth_object = nil)
-    %w[name] + _ransackers.keys
+    %w[name last_name full_name birth_date email]
   end
 
   # `ransackable_associations` returns the names
