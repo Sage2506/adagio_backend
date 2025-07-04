@@ -19,7 +19,7 @@ class Api::V1::AssistancesController < ApplicationController
     @assistance = Assistance.new(assistance_params)
 
     if @assistance.save
-      render json: @assistance, status: :created, location: @assistance
+      render json: @assistance, status: :created
     else
       render json: @assistance.errors, status: :unprocessable_entity
     end

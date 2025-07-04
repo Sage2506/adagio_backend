@@ -7,11 +7,15 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :alumn_guardians
-      resources :alumns
+      resources :alumns do
+        put "associate", on: :member
+      end
       resources :assistances
       resources :classrooms
       resources :disciplines
-      resources :guardians
+      resources :guardians do
+        put "associate", on: :member
+      end
       resources :lessons
       resources :orders
       resources :payments

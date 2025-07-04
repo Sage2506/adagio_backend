@@ -19,7 +19,7 @@ class Api::V1::SubscriptionPaymentsController < ApplicationController
     @subscription_payment = SubscriptionPayment.new(subscription_payment_params)
 
     if @subscription_payment.save
-      render json: @subscription_payment, status: :created, location: @subscription_payment
+      render json: @subscription_payment, status: :created
     else
       render json: @subscription_payment.errors, status: :unprocessable_entity
     end

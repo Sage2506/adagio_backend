@@ -19,7 +19,7 @@ class Api::V1::ClassroomsController < ApplicationController
     @classroom = Classroom.new(classroom_params)
 
     if @classroom.save
-      render json: @classroom, status: :created, location: @classroom
+      render json: @classroom, status: :created
     else
       render json: @classroom.errors, status: :unprocessable_entity
     end

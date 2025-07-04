@@ -1,12 +1,13 @@
 class Api::V1::PlansController < ApplicationController
+  include Pagy::Backend
   before_action :authenticate_request!
   before_action :set_plan, only: %i[ show update destroy ]
 
   # GET /plans
   def index
-    @plans = Plan.all
-
-    render json: @plans
+    @q = Plan.ransack(params[:q])
+    pagy, records = pagy(@q.result(distinct: true))
+    render json: { data: records, links: pagy_jsonapi_links(pagy), pages: pagy.series.map { |item| item == :gap ? item : item.to_i } }
   end
 
   # GET /plans/1
@@ -19,7 +20,7 @@ class Api::V1::PlansController < ApplicationController
     @plan = Plan.new(plan_params)
 
     if @plan.save
-      render json: @plan, status: :created, location: @plan
+      render json: @plan, status: :created
     else
       render json: @plan.errors, status: :unprocessable_entity
     end

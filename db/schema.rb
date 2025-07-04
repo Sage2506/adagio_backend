@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_11_012723) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_03_172120) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,6 +33,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_11_012723) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "birth_date"
+    t.text "special_med_conditions", default: "None", null: false
+    t.boolean "is_guardian_required_for_leaving", default: false, null: false
   end
 
   create_table "assistances", force: :cascade do |t|

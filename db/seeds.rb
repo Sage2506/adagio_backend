@@ -20,6 +20,22 @@ SubscriptionPayment.destroy_all
 alumn1 = Alumn.create!(name: "Gemma Isabella", last_name: "Rojas Ponce", birth_date: "2017-09-30", address: "Privada Rio Gandarilla 3247 Int 23 Stanza Cantabria CP: 80301", phone_number: nil, email: nil, is_active: true)
 alumn2 = Alumn.create!(name: "Naomi", last_name: "De la O Gonzalez", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
 
+alumn2 = Alumn.create!(name: "Hania Lizbeth", last_name: "Gurrola Delgado", birth_date: "2006-03-04", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Vanessa", last_name: "García Hernández", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Victoria Valentina", last_name: "Soto Ortega", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Liliana", last_name: "Mata Torrero", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Rebeca", last_name: "Rio Bojorquez", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Mariana", last_name: "Figeroa Machado", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Edmy Nohemí", last_name: "Lozano Armenta", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Miriam Adilene", last_name: "Lozano Armenta", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Gabriela", last_name: "Madrigal Hernández", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Helena", last_name: "López Hernández", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Sofia Valentina", last_name: "Ruiz Medina", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Cristina", last_name: "Lim Larios", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+alumn2 = Alumn.create!(name: "Ileana", last_name: "Ramires", birth_date: "2014-10-16", address: "Tucuman #3000 int. 26 Avellaneda", phone_number: nil, email: nil, is_active: true)
+
+
+
 # Create Guardians
 guardian1 = Guardian.create!(name: "Marcela", last_name: "Ponce Higuera", phone_number: "6671056095", email: "marxelita.83@gmail.com", is_active: true)
 guardian2 = Guardian.create!(name: "Antonio", last_name: "Rojas Arenas", phone_number: "6673897584", email: nil, is_active: true)
