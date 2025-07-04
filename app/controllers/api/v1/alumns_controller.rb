@@ -12,7 +12,7 @@ class Api::V1::AlumnsController < ApplicationController
 
   # GET /api/v1/alumns/1
   def show
-    render json: @alumn
+    render json: @alumn.as_json(include: :guardians, methods: %i[plan_id subscription_id])
   end
 
   # POST /api/v1/alumns
@@ -56,6 +56,6 @@ class Api::V1::AlumnsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def alumn_params
-      params.expect(alumn: [ :name, :last_name, :address, :phone_number, :email, :is_active, :birth_date, :guardian_id, :special_med_conditions ])
+      params.expect(alumn: [ :name, :last_name, :address, :phone_number, :email, :is_active, :birth_date, :guardian_id, :special_med_conditions, :is_guardian_required_for_leaving ])
     end
 end

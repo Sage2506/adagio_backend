@@ -4,11 +4,19 @@ class Alumn < ApplicationRecord
   has_many :assistances
   has_many :orders
   has_many :payments
-  has_one :subscriptions
+  has_one :subscription
   before_create :set_defaults
 
   def set_defaults
     self.is_active = true
+  end
+
+  def plan_id
+    subscription&.plan&.id
+  end
+
+  def subscription_id
+    subscription&.id
   end
 
   def self.ransackable_attributes(auth_object = nil)

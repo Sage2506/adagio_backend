@@ -47,6 +47,6 @@ class Api::V1::SubscriptionsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def subscription_params
-      params.expect(subscription: [ :plan_id, :alumn_id, :due_date, :status, :last_payment_date ])
+      params.expect(subscription: [ :plan_id, :alumn_id ])
     end
 end
