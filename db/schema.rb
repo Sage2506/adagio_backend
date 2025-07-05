@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_05_000012) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_05_011155) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -112,13 +112,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_05_000012) do
   end
 
   create_table "payments", force: :cascade do |t|
-    t.bigint "user_id", null: false
     t.bigint "alumn_id", null: false
-    t.float "total"
+    t.float "quantity"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "user_email"
     t.index ["alumn_id"], name: "index_payments_on_alumn_id"
-    t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
   create_table "plan_disciplines", force: :cascade do |t|
@@ -206,7 +205,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_05_000012) do
   add_foreign_key "orders", "products"
   add_foreign_key "orders", "users"
   add_foreign_key "payments", "alumns"
-  add_foreign_key "payments", "users"
   add_foreign_key "plan_disciplines", "disciplines"
   add_foreign_key "plan_disciplines", "plans"
   add_foreign_key "subscription_payments", "payments"

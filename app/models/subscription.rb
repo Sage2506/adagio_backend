@@ -1,6 +1,8 @@
 class Subscription < ApplicationRecord
   belongs_to :plan
   belongs_to :alumn
+  has_many :subscription_payments
+  has_many :payments, through: :subscription_payments
   before_create :set_defaults
 
   def set_defaults

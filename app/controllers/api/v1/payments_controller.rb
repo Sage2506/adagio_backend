@@ -17,11 +17,35 @@ class Api::V1::PaymentsController < ApplicationController
   # POST /payments
   def create
     @payment = Payment.new(payment_params)
-
-    if @payment.save
+    @payment.user_email = @current_user_email
+    ActiveRecord::Base.transaction do
+      @payment.save!
+      if params[:payable_type].present?
+        unless link_payment_to_object # Only proceed if linking succeeds
+          raise ActiveRecord::RecordInvalid.new(@payment)
+        end
+      end
       render json: @payment, status: :created
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { error: e.message }, status: :unprocessable_entity
+    end
+  end
+
+  def link_payment_to_object
+    case params[:payable_type].downcase
+    when "subscription"
+      SubscriptionPayment.create!(
+        payment: @payment,
+        subscription_id: params[:payable_id]
+      )
+      true
+    when "order"
+      # Future implementation
+      # OrderPayment.create!(payment: @payment, order_id: params[:payable_id])
+      # true
     else
-      render json: @payment.errors, status: :unprocessable_entity
+      @payment.errors.add(:base, "Unknown payable type: #{params[:payable_type]}")
+      false
     end
   end
 
@@ -47,6 +71,6 @@ class Api::V1::PaymentsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def payment_params
-      params.expect(payment: [ :user_id, :alumn_id, :total ])
+      params.require(:payment).permit(:alumn_id, :quantity)
     end
 end
