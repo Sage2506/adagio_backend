@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_03_172120) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_05_000012) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -87,10 +87,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_172120) do
     t.index ["user_id"], name: "index_lessons_on_user_id"
   end
 
+  create_table "order_payments", force: :cascade do |t|
+    t.bigint "payment_id", null: false
+    t.bigint "order_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_order_payments_on_order_id"
+    t.index ["payment_id"], name: "index_order_payments_on_payment_id"
+  end
+
   create_table "orders", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "alumn_id", null: false
-    t.bigint "payment_id"
     t.bigint "product_id", null: false
     t.integer "quantity"
     t.integer "status"
@@ -99,7 +107,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_172120) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["alumn_id"], name: "index_orders_on_alumn_id"
-    t.index ["payment_id"], name: "index_orders_on_payment_id"
     t.index ["product_id"], name: "index_orders_on_product_id"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
@@ -193,8 +200,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_172120) do
   add_foreign_key "lessons", "disciplines"
   add_foreign_key "lessons", "plans"
   add_foreign_key "lessons", "users"
+  add_foreign_key "order_payments", "orders"
+  add_foreign_key "order_payments", "payments"
   add_foreign_key "orders", "alumns"
-  add_foreign_key "orders", "payments"
   add_foreign_key "orders", "products"
   add_foreign_key "orders", "users"
   add_foreign_key "payments", "alumns"
