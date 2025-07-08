@@ -18,7 +18,6 @@ class Api::V1::PlansController < ApplicationController
   # POST /plans
   def create
     @plan = Plan.new(plan_params)
-
     if @plan.save
       render json: @plan, status: :created
     else
@@ -48,6 +47,6 @@ class Api::V1::PlansController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def plan_params
-      params.expect(plan: [ :name, :price, :subscription_duration, :tolerance_days, :is_active ])
+      params.require(:plan).permit(:name, :price, :subscription_duration, :tolerance_days)
     end
 end

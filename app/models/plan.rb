@@ -2,6 +2,11 @@ class Plan < ApplicationRecord
   has_many :plan_disciplines
   has_many :plans, through: :plan_disciplines
   has_many :subscriptions
+  before_create :set_defaults
+
+  def set_defaults
+    self.is_active = true
+  end
 
    def self.ransackable_attributes(auth_object = nil)
     %w[name] + _ransackers.keys
