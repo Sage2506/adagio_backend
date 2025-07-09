@@ -36,7 +36,12 @@ class Api::V1::PlansController < ApplicationController
 
   # DELETE /plans/1
   def destroy
-    @plan.destroy!
+    @plan.is_active = false
+    if @plan.save
+      render json: { successfull: true }, status: :ok
+    else
+      render json: @plan.errors, status: :unprocessable_entity
+    end
   end
 
   private

@@ -5,14 +5,17 @@ class Api::V1::AlumnsController < ApplicationController
 
   # GET /api/v1/alumns
   def index
-    @q = Alumn.ransack(params[:q])
+    @q = Alumn.active.ransack(params[:q])
     pagy, records = pagy(@q.result(distinct: true))
     render json: { data: records, links: pagy_jsonapi_links(pagy), pages: pagy.series.map { |item| item == :gap ? item : item.to_i } }
   end
 
   # GET /api/v1/alumns/1
   def show
-    render json: @alumn.as_json(include: :guardians, methods: %i[plan_id subscription_id])
+    render json: {
+      **@alumn.as_json(methods: %i[plan_id subscription_id]),
+      guardians: @alumn.guardians.order(created_at: :asc).as_json
+    }
   end
 
   # POST /api/v1/alumns
@@ -45,7 +48,11 @@ class Api::V1::AlumnsController < ApplicationController
   # DELETE /api/v1/alumns/1
   def destroy
     @alumn.is_active = false
-    @alumn.save
+    if @alumn.save
+      render json: { successfull: true }, status: :ok
+    else
+      render json: @alumn.errors, status: :unprocessable_entity
+    end
   end
 
   private

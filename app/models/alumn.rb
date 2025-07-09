@@ -5,7 +5,9 @@ class Alumn < ApplicationRecord
   has_many :orders
   has_many :payments
   has_one :subscription
+  before_validation :downcase_all
   before_create :set_defaults
+  scope :active, -> { where("is_active = true") }
 
   def set_defaults
     self.is_active = true
@@ -17,6 +19,14 @@ class Alumn < ApplicationRecord
 
   def subscription_id
     subscription&.id
+  end
+
+  def downcase_all
+    self.name = name.downcase if name.present?
+    self.last_name = last_name.downcase if last_name.present?
+    self.address = address.downcase if address.present?
+    self.phone_number = phone_number.downcase if phone_number.present?
+    self.email = email.downcase if email.present?
   end
 
   ransacker :full_name, formatter: proc { |v| v.downcase } do |parent|
