@@ -14,6 +14,18 @@ class Subscription < ApplicationRecord
     end
   end
 
+  def fully_paid?
+    paid_amount >= plan.price
+  end
+
+  def remaining_balance
+    [ plan.price - paid_amount, 0 ].max
+  end
+
+  def payment_percentage
+    (paid_amount / plan.price * 100).round(2)
+  end
+
   def self.ransackable_attributes(auth_object = nil)
     %w[alumn_id plan_id]
   end

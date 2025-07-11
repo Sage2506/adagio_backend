@@ -1,7 +1,11 @@
 class Plan < ApplicationRecord
   has_many :plan_disciplines
+  has_many :lessons, dependent: :destroy
   has_many :plans, through: :plan_disciplines
   has_many :subscriptions
+
+  scope :active, -> { where("is_active = true") }
+
   before_validation :downcase_all
   before_create :set_defaults
 

@@ -6,7 +6,6 @@ class Api::V1::SubscriptionsController < ApplicationController
   # GET /subscriptions
   def index
     @q = Subscription.includes(:alumn, :plan).ransack(params[:q])
-
     # Add full_name search if parameter exists
     if params[:full_name].present?
       @q = Subscription.includes(:alumn, :plan).ransack({
@@ -14,7 +13,7 @@ class Api::V1::SubscriptionsController < ApplicationController
       })
     end
 
-    pagy, records = pagy(@q.result(distinct: true))
+    pagy, records = pagy(@q.result(distinct: true).order(last_payment_date: :asc))
 
     render json: {
       data: records.as_json(include: [ :alumn, :plan ]),

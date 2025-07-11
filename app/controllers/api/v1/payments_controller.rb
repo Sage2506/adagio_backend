@@ -34,10 +34,22 @@ class Api::V1::PaymentsController < ApplicationController
   def link_payment_to_object
     case params[:payable_type].downcase
     when "subscription"
+      subscription = Subscription.find(params[:payable_id])
+      new_paid_amount = subscription.paid_amount + @payment.quantity
       SubscriptionPayment.create!(
         payment: @payment,
         subscription_id: params[:payable_id]
       )
+      subscription.update!(
+        paid_amount: new_paid_amount
+      )
+      if new_paid_amount >= subscription.plan.price
+        subscription.update!(
+          last_payment_date: Date.today,
+          due_date: subscription.due_date + subscription.plan.subscription_duration_days,
+          paid_amount: 0.0
+        )
+      end
       true
     when "order"
       # Future implementation

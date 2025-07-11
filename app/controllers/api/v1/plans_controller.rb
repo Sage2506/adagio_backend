@@ -5,7 +5,7 @@ class Api::V1::PlansController < ApplicationController
 
   # GET /plans
   def index
-    @q = Plan.ransack(params[:q])
+    @q = Plan.active.ransack(params[:q])
     pagy, records = pagy(@q.result(distinct: true))
     render json: { data: records, links: pagy_jsonapi_links(pagy), pages: pagy.series.map { |item| item == :gap ? item : item.to_i } }
   end
