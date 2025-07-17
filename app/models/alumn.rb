@@ -5,6 +5,7 @@ class Alumn < ApplicationRecord
   has_many :orders
   has_many :payments
   has_one :subscription
+  has_one :plan, through: :subscription
   before_validation :downcase_all
   before_create :set_defaults
   scope :active, -> { where("is_active = true") }
