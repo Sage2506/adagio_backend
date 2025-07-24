@@ -41,7 +41,7 @@ class Alumn < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[name last_name full_name birth_date email]
+    %w[name last_name full_name email]
   end
 
   # `ransackable_associations` returns the names
