@@ -18,8 +18,9 @@ class Api::V1::OrdersController < ApplicationController
   def create
     @order = Order.new(order_params)
     @order.user_email = @current_user_email
-    if params[:paid_amount].present?
-      if params[:paid_amount] == params[:total]
+    ActiveRecord::Base.transaction do
+    if @order.paid_amount.present?
+      if @order.paid_amount == params[:total]
         @order.status = 2
       else
         @order.status = 1
@@ -27,8 +28,12 @@ class Api::V1::OrdersController < ApplicationController
     else
         @order.status = 0
     end
-    ActiveRecord::Base.transaction do
     if @order.save
+      if @order.paid_amount.present?
+        unless create_order_payment
+          raise ActiveRecord::RecordInvalid.new(@order)
+        end
+      end
       if params[:products].present?
         unless link_products_to_order
           raise ActiveRecord::RecordInvalid.new(@order)
@@ -41,6 +46,27 @@ class Api::V1::OrdersController < ApplicationController
     rescue ActiveRecord::RecordInvalid => e
       render json: { error: e.message }, status: :unprocessable_entity
     end
+  end
+
+  def create_order_payment
+    payment = Payment.new(
+      alumn_id: @order.alumn_id,
+      quantity: @order.paid_amount,
+      user_email: @current_user_email
+    )
+    unless payment.save
+      @order.errors.add(:base, "Error with creating payment")
+      false
+    end
+    orderPayment = OrderPayment.create(
+      payment: payment,
+      order: @order
+    )
+    unless orderPayment.save
+      @order.errors.add(:base, "Error with creating payorder payment")
+      false
+    end
+    true
   end
 
   def link_products_to_order
