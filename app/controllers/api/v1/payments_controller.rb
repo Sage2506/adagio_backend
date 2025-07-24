@@ -53,9 +53,17 @@ class Api::V1::PaymentsController < ApplicationController
       end
       true
     when "order"
-      # Future implementation
-      # OrderPayment.create!(payment: @payment, order_id: params[:payable_id])
-      # true
+      order = Order.find(params[:payable_id])
+        OrderPayment.create(payment: @payment, order: order)
+        order.paid_amount = order.paid_amount + @payment.quantity
+        if order.paid_amount == order.total
+          order.status = 2
+        else
+          order.status = 1
+        end
+        order.save
+        true
+      end
     else
       @payment.errors.add(:base, "Unknown payable type: #{params[:payable_type]}")
       false
