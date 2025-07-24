@@ -63,7 +63,6 @@ class Api::V1::PaymentsController < ApplicationController
         end
         order.save
         true
-      end
     else
       @payment.errors.add(:base, "Unknown payable type: #{params[:payable_type]}")
       false
