@@ -4,7 +4,7 @@ gem "pg", "~> 1.1"
 gem "puma", ">= 5.0"
 gem "bcrypt", "~> 3.1.7"
 gem "jwt"
-gem "aws-sdk-cognitoidentityprovider", "~> 1.3"
+gem "aws-sdk-cognitoidentityprovider", "~> 1.126"
 gem "httparty"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
