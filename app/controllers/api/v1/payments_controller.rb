@@ -47,7 +47,7 @@ class Api::V1::PaymentsController < ApplicationController
       if new_paid_amount >= subscription.plan.price
         subscription.update!(
           last_payment_date: Date.today,
-          due_date: subscription.due_date + subscription.plan.subscription_duration_days,
+          due_date: subscription.due_date + subscription.plan.subscription_duration,
           paid_amount: 0.0
         )
       end

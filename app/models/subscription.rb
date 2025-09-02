@@ -5,7 +5,10 @@ class Subscription < ApplicationRecord
   has_many :payments, through: :subscription_payments
   before_create :set_defaults
 
+  enum :status, [ :active, :cancelled, :expired ]
+
   def set_defaults
+    self.status = 0
     if plan&.subscription_duration
       self.due_date = Date.today + plan.subscription_duration.days
     else
