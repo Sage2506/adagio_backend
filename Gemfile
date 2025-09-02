@@ -14,7 +14,7 @@ gem "bootsnap", require: false
 gem "kamal", require: false
 gem "thruster", require: false
 gem "rack-cors"
-gem "pagy", "~> 9.3"
+gem "pagy", "~> 9.4"
 gem "ransack"
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
