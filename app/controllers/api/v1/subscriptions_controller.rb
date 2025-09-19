@@ -5,7 +5,7 @@ class Api::V1::SubscriptionsController < ApplicationController
 
   # GET /subscriptions
   def index
-    @q = Subscription.includes(:alumn, :plan).ransack(params[:q])
+    @q = Subscription.active.includes(:alumn, :plan).ransack(params[:q])
     # Add full_name search if parameter exists
     if params[:full_name].present?
       @q = Subscription.includes(:alumn, :plan).ransack({
@@ -60,6 +60,6 @@ class Api::V1::SubscriptionsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def subscription_params
-      params.expect(subscription: [ :plan_id, :alumn_id ])
+      params.expect(subscription: [ :plan_id, :alumn_id, :due_date ])
     end
 end
