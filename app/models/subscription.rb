@@ -4,7 +4,6 @@ class Subscription < ApplicationRecord
   has_many :subscription_payments
   has_many :payments, through: :subscription_payments
   before_create :set_defaults
-  scope :active, -> { where("status = 0")}
   enum :status, [ :active, :cancelled, :expired ]
 
   def set_defaults
