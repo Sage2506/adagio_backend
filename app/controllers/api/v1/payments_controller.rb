@@ -1,11 +1,14 @@
 class Api::V1::PaymentsController < ApplicationController
-  before_action :authenticate_request!
   before_action :set_payment, only: %i[ show update destroy ]
 
   # GET /payments
   def index
-    @payments = Payment.all
-
+    @payments = []
+    if params[:subscription_id]
+      @payments = Subscription.find(params[:subscription_id]).payments
+    else
+      @payments = Payment.all
+    end
     render json: @payments
   end
 
