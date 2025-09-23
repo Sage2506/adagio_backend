@@ -4,8 +4,13 @@ class Api::V1::PaymentsController < ApplicationController
   # GET /payments
   def index
     @payments = []
-    if params[:subscription_id]
-      @payments = Subscription.find(params[:subscription_id]).payments
+    if params[:payable_type]
+      case params[:payable_type].downcase
+      when "subscription"
+        @payments = Subscription.find(params[:payable_id]).payments
+      when "order"
+        @payments = Order.find(params[:payable_id]).payments
+      end
     else
       @payments = Payment.all
     end
