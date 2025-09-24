@@ -76,7 +76,7 @@ class Api::V1::PaymentsController < ApplicationController
 
       if new_paid_amount >= subscription.plan.price
         subscription.update!(
-          last_payment_date: Date.today,
+          last_payment_date: @payment.paid_at || Date.today,
           due_date: subscription.due_date + subscription.plan.subscription_duration,
           paid_amount: 0.0
         )
@@ -124,6 +124,6 @@ class Api::V1::PaymentsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def payment_params
-      params.require(:payment).permit(:alumn_id, :quantity, :created_at)
+      params.require(:payment).permit(:alumn_id, :quantity, :created_at, :paid_at)
     end
 end
