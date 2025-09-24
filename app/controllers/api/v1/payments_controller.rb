@@ -1,20 +1,42 @@
 class Api::V1::PaymentsController < ApplicationController
+  include Pagy::Backend
   before_action :set_payment, only: %i[ show update destroy ]
 
   # GET /payments
   def index
     @payments = []
-    if params[:payable_type]
-      case params[:payable_type].downcase
-      when "subscription"
-        @payments = Subscription.find(params[:payable_id]).payments
-      when "order"
-        @payments = Order.find(params[:payable_id]).payments
+    if params[:payable_type].present?
+
+      unless valid_payable_type?(params[:payable_type])
+        return render json: { error: "Invalid payable_type. Must be 'subscription' or 'order'" }, status: :unprocessable_entity
+      end
+
+      unless params[:payable_id].present?
+        return render json: { error: "payable_id is required when payable_type is provided" }, status: :unprocessable_entity
+      end
+
+      begin
+        case params[:payable_type].downcase
+        when "subscription"
+          @payments = Subscription.find(params[:payable_id]).payments
+        when "order"
+          @payments = Order.find(params[:payable_id]).payments
+        end
+      rescue ActiveRecord::RecordNotFound
+        return render json: { error: "#{params[:payable_type].capitalize} not found" }, status: :not_found
       end
     else
       @payments = Payment.all
     end
-    render json: @payments
+    # Apply ransack search and pagination
+    @q = @payments.ransack(params[:q])
+    pagy, records = pagy(@q.result(distinct: true))
+
+    render json: {
+      data: records,
+      links: pagy_jsonapi_links(pagy),
+      pages: pagy.series.map { |item| item == :gap ? item : item.to_i }
+    }
   end
 
   # GET /payments/1
@@ -92,6 +114,9 @@ class Api::V1::PaymentsController < ApplicationController
   end
 
   private
+    def valid_payable_type?(type)
+      %w[subscription order].include?(type.downcase)
+    end
     # Use callbacks to share common setup or constraints between actions.
     def set_payment
       @payment = Payment.find(params.expect(:id))
