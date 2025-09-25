@@ -65,7 +65,7 @@ class Api::V1::PaymentsController < ApplicationController
     case params[:payable_type].downcase
     when "subscription"
       subscription = Subscription.find(params[:payable_id])
-      new_paid_amount = subscription.paid_amount + @payment.quantity
+      new_paid_amount = params[:paid_amount] || subscription.paid_amount + @payment.quantity
       SubscriptionPayment.create!(
         payment: @payment,
         subscription_id: params[:payable_id]
