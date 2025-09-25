@@ -29,7 +29,6 @@ class Api::V1::SubscriptionsController < ApplicationController
   # POST /subscriptions
   def create
     @subscription = Subscription.new(subscription_params)
-
     if @subscription.save
       render json: @subscription, status: :created
     else
@@ -59,6 +58,6 @@ class Api::V1::SubscriptionsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def subscription_params
-      params.expect(subscription: [ :plan_id, :alumn_id, :due_date, :status ])
+      params.expect(subscription: [ :plan_id, :alumn_id, :due_date, :status, :subscribed_at ])
     end
 end
