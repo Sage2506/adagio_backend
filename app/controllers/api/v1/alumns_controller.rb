@@ -47,8 +47,7 @@ class Api::V1::AlumnsController < ApplicationController
 
   # DELETE /api/v1/alumns/1
   def destroy
-    @alumn.is_active = false
-    if @alumn.save
+    if @alumn.disable
       render json: { successfull: true }, status: :ok
     else
       render json: @alumn.errors, status: :unprocessable_entity

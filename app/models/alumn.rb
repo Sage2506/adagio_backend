@@ -44,6 +44,12 @@ class Alumn < ApplicationRecord
     %w[name last_name full_name email]
   end
 
+  def disable
+    transaction do
+      update!(is_active: false)
+      subscription&.disable
+    end
+  end
   # `ransackable_associations` returns the names
   # of searchable associations as an array of strings.
   #

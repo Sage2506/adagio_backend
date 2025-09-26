@@ -5,7 +5,7 @@ class Subscription < ApplicationRecord
   has_many :payments, through: :subscription_payments
   before_create :set_defaults
   enum :status, [ :active, :cancelled, :expired ]
-  before_create :set_paid_at_if_blank
+  before_create :set_subscribed_at_if_blank
 
   def set_defaults
     self.status = 0
@@ -31,6 +31,10 @@ class Subscription < ApplicationRecord
 
   def self.ransackable_attributes(auth_object = nil)
     %w[alumn_id plan_id]
+  end
+
+  def disable
+    update!(status: 1)
   end
 
   # `ransackable_associations` returns the names

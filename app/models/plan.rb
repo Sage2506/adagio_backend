@@ -3,6 +3,7 @@ class Plan < ApplicationRecord
   has_many :lessons, dependent: :destroy
   has_many :plans, through: :plan_disciplines
   has_many :subscriptions
+  before_create :set_registration_cost_if_blank
 
   scope :active, -> { where("is_active = true") }
 
@@ -45,5 +46,11 @@ class Plan < ApplicationRecord
   #
   def self.ransackable_scopes(auth_object = nil)
     []
+  end
+
+  private
+
+  def set_registration_cost_if_blank
+    self.registration_cost ||= 900.00
   end
 end
