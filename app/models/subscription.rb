@@ -9,12 +9,7 @@ class Subscription < ApplicationRecord
 
   def set_defaults
     self.status = 0
-    if plan&.subscription_duration
-      self.due_date = Date.today + plan.subscription_duration.days
-    else
-      errors.add(:base, "Plan or subscription duration missing")
-      throw(:abort) # Prevents saving if no plan/duration is set
-    end
+    self.due_date = self.subscribed_at || Date.today
   end
 
   def fully_paid?
