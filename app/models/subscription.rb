@@ -6,7 +6,7 @@ class Subscription < ApplicationRecord
   before_create :set_defaults
   enum :status, [ :active, :cancelled, :expired ]
   before_create :set_subscribed_at_if_blank
-
+  scope :active, -> { where("status = 0")}
   def set_defaults
     self.status = 0
     self.due_date = self.subscribed_at || Date.today
