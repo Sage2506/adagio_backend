@@ -121,7 +121,7 @@ class Api::V1::PaymentsController < ApplicationController
     end
     # Use callbacks to share common setup or constraints between actions.
     def set_payment
-      @payment = Payment.find(params.expect(:id))
+      @payment = Payment.find(params.require(:id))
     end
 
     # Only allow a list of trusted parameters through.

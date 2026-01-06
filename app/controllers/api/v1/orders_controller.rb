@@ -102,7 +102,7 @@ class Api::V1::OrdersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_order
-      @order = Order.find(params.expect(:id))
+      @order = Order.find(params.require(:id))
     end
 
     # Only allow a list of trusted parameters through.
