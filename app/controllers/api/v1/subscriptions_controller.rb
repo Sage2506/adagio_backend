@@ -5,11 +5,11 @@ class Api::V1::SubscriptionsController < ApplicationController
 
   # GET /subscriptions
   def index
-    @q = Subscription.active.includes(:alumn, :plan).ransack(params[:q])
-    if params[:full_name].present?
-      @q = Subscription.includes(:alumn, :plan).ransack({
-        alumn_full_name_cont: params[:full_name].downcase
-      })
+    base_scope = subscriptions_base_scope.includes(:alumn, :plan)
+    @q = if params[:full_name].present?
+      base_scope.ransack(alumn_full_name_cont: params[:full_name].downcase)
+    else
+      base_scope.ransack(params[:q])
     end
 
     pagy, records = pagy(@q.result(distinct: true).order(status: :asc, due_date: :asc))
@@ -59,5 +59,14 @@ class Api::V1::SubscriptionsController < ApplicationController
   # Only allow a list of trusted parameters through.
   def subscription_params
     params.require(:subscription).permit(:plan_id, :alumn_id, :due_date, :status, :subscribed_at)
+  end
+
+  # Devuelve el scope base según el parámetro include_inactive
+  def subscriptions_base_scope
+    if params[:include_inactive].present? && params[:include_inactive].to_s == 'true'
+      Subscription.all
+    else
+      Subscription.active
+    end
   end
 end
