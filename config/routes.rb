@@ -24,7 +24,11 @@ Rails.application.routes.draw do
       resources :plans
       resources :products
       resources :subscription_payments
-      resources :subscriptions
+      resources :subscriptions do
+        member do
+          put :rehabilitate
+        end
+      end
       resources :user_disciplines
       resources :users
       # post "/auth/login", to: "authentication#login"

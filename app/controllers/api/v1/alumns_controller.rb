@@ -18,7 +18,7 @@ class Api::V1::AlumnsController < ApplicationController
   def show
     alumn = Alumn.includes(:guardians).find(@alumn.id)
     render json: {
-      data: alumn.as_json(methods: %i[plan_id subscription_id]),
+      alumn: alumn.as_json(methods: %i[plan_id subscription_id]),
       guardians: alumn.guardians.order(created_at: :asc).as_json
     }
   end
