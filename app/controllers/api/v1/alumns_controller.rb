@@ -5,7 +5,12 @@ class Api::V1::AlumnsController < ApplicationController
 
   # GET /api/v1/alumns
   def index
-    @q = Alumn.active.ransack(params[:q])
+    alumns = Alumn.active
+    if params[:birth_month].present?
+      month = params[:birth_month].to_i
+      alumns = alumns.where('EXTRACT(MONTH FROM birth_date) = ?', month)
+    end
+    @q = alumns.ransack(params[:q])
     pagy, records = pagy(@q.result(distinct: true))
     render json: {
       data: records,

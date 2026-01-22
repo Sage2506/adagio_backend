@@ -15,6 +15,7 @@ class Api::V1::SubscriptionsController < ApplicationController
 
     render json: {
       data: records.as_json(include: [ :alumn, :plan ]),
+      count: @q.result(distinct: true).count,
       links: pagy_jsonapi_links(pagy),
       pages: pagy.series.map { |item| item == :gap ? item : item.to_i }
     }
