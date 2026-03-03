@@ -10,6 +10,7 @@ Rails.application.routes.draw do
       resources :alumn_guardians
       resources :alumns do
         put "associate", on: :member
+        get "birthdays_by_month", on: :collection
       end
       resources :assistances
       resources :classrooms

@@ -73,6 +73,25 @@ class Api::V1::AlumnsController < ApplicationController
     end
   end
 
+  # GET /api/v1/alumns/birthdays_by_month?month=5
+  def birthdays_by_month
+    unless params[:month].present?
+      return render json: { error: 'El parámetro month es requerido' }, status: :bad_request
+    end
+
+    month = params[:month].to_i
+    unless month.between?(0, 11)
+      return render json: { error: 'El mes debe estar entre 0 y 11' }, status: :bad_request
+    end
+
+    # Convertir de 0-11 a 1-12 para consulta SQL
+    sql_month = month + 1
+    alumns = Alumn.active.where('EXTRACT(MONTH FROM birth_date) = ?', sql_month)
+                   .order(:birth_date)
+
+    render json: { data: alumns }, status: :ok
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_alumn
