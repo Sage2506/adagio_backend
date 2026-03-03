@@ -1,7 +1,7 @@
 class Api::V1::SubscriptionsController < ApplicationController
   include Pagy::Backend
   before_action :authenticate_request!
-  before_action :set_subscription, only: %i[ show update destroy rehabilitate ]
+  before_action :set_subscription, only: %i[ show update destroy ]
   # GET /subscriptions
   def index
     base_scope = subscriptions_base_scope.includes(:alumn, :plan)

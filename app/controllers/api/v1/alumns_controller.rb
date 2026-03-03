@@ -89,7 +89,7 @@ class Api::V1::AlumnsController < ApplicationController
     alumns = Alumn.active.where('EXTRACT(MONTH FROM birth_date) = ?', sql_month)
                    .order(:birth_date)
 
-    render json: { data: alumns }, status: :ok
+    render json: alumns , status: :ok
   end
 
   private
