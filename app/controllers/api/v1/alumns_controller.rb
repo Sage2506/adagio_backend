@@ -86,10 +86,13 @@ class Api::V1::AlumnsController < ApplicationController
 
     # Convertir de 0-11 a 1-12 para consulta SQL
     sql_month = month + 1
-    alumns = Alumn.active.where('EXTRACT(MONTH FROM birth_date) = ?', sql_month)
+    alumns = Alumn
+                   .joins(:subscription)
+                   .merge(Subscription.active)
+                   .where('EXTRACT(MONTH FROM birth_date) = ?', sql_month)
                    .order(:birth_date)
 
-    render json: { data: alumns }, status: :ok
+    render json: alumns , status: :ok
   end
 
   private
