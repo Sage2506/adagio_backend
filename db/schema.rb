@@ -10,77 +10,77 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_25_232538) do
+ActiveRecord::Schema[8.1].define(version: 2025_09_25_232538) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "alumn_guardians", force: :cascade do |t|
     t.bigint "alumn_id", null: false
-    t.bigint "guardian_id", null: false
     t.datetime "created_at", null: false
+    t.bigint "guardian_id", null: false
     t.datetime "updated_at", null: false
     t.index ["alumn_id"], name: "index_alumn_guardians_on_alumn_id"
     t.index ["guardian_id"], name: "index_alumn_guardians_on_guardian_id"
   end
 
   create_table "alumns", force: :cascade do |t|
-    t.string "name"
-    t.string "last_name"
     t.text "address"
-    t.string "phone_number"
+    t.date "birth_date"
+    t.datetime "created_at", null: false
     t.string "email"
     t.boolean "is_active"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.date "birth_date"
-    t.text "special_med_conditions", default: "None", null: false
     t.boolean "is_guardian_required_for_leaving", default: false, null: false
+    t.string "last_name"
+    t.string "name"
+    t.string "phone_number"
+    t.text "special_med_conditions", default: "None", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "assistances", force: :cascade do |t|
-    t.bigint "lesson_id", null: false
     t.bigint "alumn_id", null: false
     t.datetime "created_at", null: false
+    t.bigint "lesson_id", null: false
     t.datetime "updated_at", null: false
     t.index ["alumn_id"], name: "index_assistances_on_alumn_id"
     t.index ["lesson_id"], name: "index_assistances_on_lesson_id"
   end
 
   create_table "classrooms", force: :cascade do |t|
-    t.string "name"
+    t.datetime "created_at", null: false
     t.string "description"
     t.boolean "is_active"
-    t.datetime "created_at", null: false
+    t.string "name"
     t.datetime "updated_at", null: false
   end
 
   create_table "disciplines", force: :cascade do |t|
-    t.string "name"
-    t.boolean "is_active"
     t.datetime "created_at", null: false
+    t.boolean "is_active"
+    t.string "name"
     t.datetime "updated_at", null: false
   end
 
   create_table "guardians", force: :cascade do |t|
-    t.string "name"
-    t.string "last_name"
     t.text "address"
-    t.string "phone_number"
+    t.datetime "created_at", null: false
     t.string "email"
     t.boolean "is_active"
-    t.datetime "created_at", null: false
+    t.string "last_name"
+    t.string "name"
+    t.string "phone_number"
     t.datetime "updated_at", null: false
   end
 
   create_table "lessons", force: :cascade do |t|
-    t.bigint "plan_id", null: false
-    t.bigint "user_id", null: false
     t.bigint "classroom_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "discipline_id", null: false
+    t.bigint "plan_id", null: false
     t.datetime "schedule"
     t.integer "status"
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "discipline_id", null: false
+    t.bigint "user_id", null: false
     t.index ["classroom_id"], name: "index_lessons_on_classroom_id"
     t.index ["discipline_id"], name: "index_lessons_on_discipline_id"
     t.index ["plan_id"], name: "index_lessons_on_plan_id"
@@ -88,20 +88,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_25_232538) do
   end
 
   create_table "order_payments", force: :cascade do |t|
-    t.bigint "payment_id", null: false
-    t.bigint "order_id", null: false
     t.datetime "created_at", null: false
+    t.bigint "order_id", null: false
+    t.bigint "payment_id", null: false
     t.datetime "updated_at", null: false
     t.index ["order_id"], name: "index_order_payments_on_order_id"
     t.index ["payment_id"], name: "index_order_payments_on_payment_id"
   end
 
   create_table "order_products", force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.bigint "order_id", null: false
+    t.float "price"
     t.bigint "product_id", null: false
     t.integer "quantity"
-    t.float "price"
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["order_id"], name: "index_order_products_on_order_id"
     t.index ["product_id"], name: "index_order_products_on_product_id"
@@ -109,97 +109,97 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_25_232538) do
 
   create_table "orders", force: :cascade do |t|
     t.bigint "alumn_id", null: false
+    t.datetime "created_at", null: false
+    t.string "description"
+    t.float "paid_amount"
     t.integer "status"
     t.float "total"
-    t.string "description"
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.float "paid_amount"
     t.string "user_email"
     t.index ["alumn_id"], name: "index_orders_on_alumn_id"
   end
 
   create_table "payments", force: :cascade do |t|
     t.bigint "alumn_id", null: false
-    t.float "quantity"
     t.datetime "created_at", null: false
+    t.datetime "paid_at"
+    t.float "quantity"
     t.datetime "updated_at", null: false
     t.string "user_email"
-    t.datetime "paid_at"
     t.index ["alumn_id"], name: "index_payments_on_alumn_id"
   end
 
   create_table "plan_disciplines", force: :cascade do |t|
-    t.bigint "plan_id", null: false
-    t.bigint "discipline_id", null: false
     t.datetime "created_at", null: false
+    t.bigint "discipline_id", null: false
+    t.bigint "plan_id", null: false
     t.datetime "updated_at", null: false
     t.index ["discipline_id"], name: "index_plan_disciplines_on_discipline_id"
     t.index ["plan_id"], name: "index_plan_disciplines_on_plan_id"
   end
 
   create_table "plans", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "is_active"
     t.string "name"
     t.float "price"
+    t.float "registration_cost"
     t.integer "subscription_duration"
     t.integer "tolerance_days"
-    t.boolean "is_active"
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.float "registration_cost"
   end
 
   create_table "products", force: :cascade do |t|
-    t.string "name"
-    t.float "price"
+    t.datetime "created_at", null: false
     t.string "description"
     t.boolean "is_active", default: true, null: false
-    t.datetime "created_at", null: false
+    t.string "name"
+    t.float "price"
     t.datetime "updated_at", null: false
   end
 
   create_table "subscription_payments", force: :cascade do |t|
-    t.bigint "subscription_id", null: false
-    t.bigint "payment_id", null: false
     t.datetime "created_at", null: false
+    t.bigint "payment_id", null: false
+    t.bigint "subscription_id", null: false
     t.datetime "updated_at", null: false
     t.index ["payment_id"], name: "index_subscription_payments_on_payment_id"
     t.index ["subscription_id"], name: "index_subscription_payments_on_subscription_id"
   end
 
   create_table "subscriptions", force: :cascade do |t|
-    t.bigint "plan_id", null: false
     t.bigint "alumn_id", null: false
-    t.date "due_date"
-    t.integer "status"
-    t.date "last_payment_date"
     t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.date "due_date"
+    t.date "last_payment_date"
     t.float "paid_amount", default: 0.0
+    t.bigint "plan_id", null: false
+    t.integer "status"
     t.datetime "subscribed_at"
+    t.datetime "updated_at", null: false
     t.index ["alumn_id"], name: "index_subscriptions_on_alumn_id"
     t.index ["plan_id"], name: "index_subscriptions_on_plan_id"
   end
 
   create_table "user_disciplines", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "discipline_id", null: false
     t.datetime "created_at", null: false
+    t.bigint "discipline_id", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["discipline_id"], name: "index_user_disciplines_on_discipline_id"
     t.index ["user_id"], name: "index_user_disciplines_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "last_name", null: false
-    t.string "phone_number"
-    t.string "email", null: false
     t.text "address"
-    t.integer "role", default: 0, null: false
-    t.string "password_digest"
-    t.boolean "is_active", default: true, null: false
     t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.boolean "is_active", default: true, null: false
+    t.string "last_name", null: false
+    t.string "name", null: false
+    t.string "password_digest"
+    t.string "phone_number"
+    t.integer "role", default: 0, null: false
     t.datetime "updated_at", null: false
   end
 
