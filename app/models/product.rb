@@ -1,5 +1,6 @@
 class Product < ApplicationRecord
-  has_many :orders
+  has_many :order_products, dependent: :restrict_with_error
+  has_many :orders, through: :order_products
 
   def self.ransackable_attributes(auth_object = nil)
     %w[name]

@@ -3,13 +3,26 @@ class Subscription < ApplicationRecord
   belongs_to :alumn
   has_many :subscription_payments
   has_many :payments, through: :subscription_payments
+  before_create :set_subscribed_at_if_blank
   before_create :set_defaults
   enum :status, [ :active, :cancelled, :expired ]
-  before_create :set_subscribed_at_if_blank
   scope :active, -> { where("status = 0")}
   def set_defaults
     self.status = 0
-    self.due_date = self.subscribed_at || Date.today
+    self.due_date = calculate_due_date
+  end
+
+  # Regla de negocio: el día de subscribed_at define el mes/día de vencimiento
+  def calculate_due_date
+    date = (subscribed_at || Date.today).to_date
+    case date.day
+    when 1..7
+      date.next_month.beginning_of_month
+    when 8..21
+      date.next_month.change(day: 15)
+    when 22..31
+      (date + 2.months).beginning_of_month
+    end
   end
 
   def fully_paid?

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_09_25_232538) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_14_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -92,6 +92,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_09_25_232538) do
     t.bigint "order_id", null: false
     t.bigint "payment_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["order_id", "payment_id"], name: "index_order_payments_on_order_and_payment", unique: true
     t.index ["order_id"], name: "index_order_payments_on_order_id"
     t.index ["payment_id"], name: "index_order_payments_on_payment_id"
   end
@@ -99,34 +100,43 @@ ActiveRecord::Schema[8.1].define(version: 2025_09_25_232538) do
   create_table "order_products", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "order_id", null: false
-    t.float "price"
+    t.decimal "price", precision: 12, scale: 2, null: false
     t.bigint "product_id", null: false
-    t.integer "quantity"
+    t.integer "quantity", null: false
     t.datetime "updated_at", null: false
+    t.index ["order_id", "product_id"], name: "index_order_products_on_order_and_product", unique: true
     t.index ["order_id"], name: "index_order_products_on_order_id"
     t.index ["product_id"], name: "index_order_products_on_product_id"
+    t.check_constraint "price > 0::numeric", name: "order_products_price_positive"
+    t.check_constraint "quantity > 0", name: "order_products_quantity_positive"
   end
 
   create_table "orders", force: :cascade do |t|
     t.bigint "alumn_id", null: false
     t.datetime "created_at", null: false
     t.string "description"
-    t.float "paid_amount"
-    t.integer "status"
-    t.float "total"
+    t.decimal "paid_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.integer "status", default: 0, null: false
+    t.decimal "total", precision: 12, scale: 2, null: false
     t.datetime "updated_at", null: false
     t.string "user_email"
     t.index ["alumn_id"], name: "index_orders_on_alumn_id"
+    t.check_constraint "paid_amount <= total", name: "orders_paid_amount_not_above_total"
+    t.check_constraint "paid_amount >= 0::numeric", name: "orders_paid_amount_non_negative"
+    t.check_constraint "status = ANY (ARRAY[0, 1, 2])", name: "orders_status_valid"
   end
+
+  add_check_constraint "orders", "total > 0::numeric", name: "orders_total_positive", validate: false
 
   create_table "payments", force: :cascade do |t|
     t.bigint "alumn_id", null: false
     t.datetime "created_at", null: false
     t.datetime "paid_at"
-    t.float "quantity"
+    t.decimal "quantity", precision: 12, scale: 2, null: false
     t.datetime "updated_at", null: false
     t.string "user_email"
     t.index ["alumn_id"], name: "index_payments_on_alumn_id"
+    t.check_constraint "quantity > 0::numeric", name: "payments_quantity_positive"
   end
 
   create_table "plan_disciplines", force: :cascade do |t|
@@ -154,8 +164,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_09_25_232538) do
     t.string "description"
     t.boolean "is_active", default: true, null: false
     t.string "name"
-    t.float "price"
+    t.decimal "price", precision: 12, scale: 2, null: false
     t.datetime "updated_at", null: false
+    t.check_constraint "price > 0::numeric", name: "products_price_positive"
   end
 
   create_table "subscription_payments", force: :cascade do |t|

@@ -1,6 +1,7 @@
 class Api::V1::PaymentsController < ApplicationController
   include Pagy::Backend
   before_action :set_payment, only: %i[ show update destroy ]
+  before_action :validate_payable_params!, only: :create
 
   # GET /payments
   def index
@@ -48,57 +49,17 @@ class Api::V1::PaymentsController < ApplicationController
   def create
     @payment = Payment.new(payment_params)
     @payment.user_email = @current_user_email
+
     ActiveRecord::Base.transaction do
       @payment.save!
-      if params[:payable_type].present?
-        unless link_payment_to_object # Only proceed if linking succeeds
-          raise ActiveRecord::RecordInvalid.new(@payment)
-        end
-      end
-      render json: @payment, status: :created
-    rescue ActiveRecord::RecordInvalid => e
-      render json: { error: e.message }, status: :unprocessable_entity
+      link_payment_to_payable! if params[:payable_type].present?
     end
-  end
 
-  def link_payment_to_object
-    case params[:payable_type].downcase
-    when "subscription"
-      subscription = Subscription.find(params[:payable_id])
-      new_paid_amount = params[:paid_amount].present? ? params[:paid_amount].to_f : subscription.paid_amount + @payment.quantity
-
-      SubscriptionPayment.create!(
-        payment: @payment,
-        subscription_id: params[:payable_id]
-      )
-
-      subscription.update!(
-        paid_amount: new_paid_amount,
-        last_payment_date: @payment.paid_at || Date.today
-      )
-
-      if new_paid_amount >= subscription.plan.price
-        subscription.update!(
-          due_date: params[:due_date] || subscription.due_date + subscription.plan.subscription_duration,
-          paid_amount: 0.0
-        )
-      end
-      true
-    when "order"
-      order = Order.find(params[:payable_id])
-        OrderPayment.create(payment: @payment, order: order)
-        order.paid_amount = order.paid_amount + @payment.quantity
-        if order.paid_amount == order.total
-          order.status = 2
-        else
-          order.status = 1
-        end
-        order.save
-        true
-    else
-      @payment.errors.add(:base, "Unknown payable type: #{params[:payable_type]}")
-      false
-    end
+    render json: @payment, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render_invalid_record(e.record)
+  rescue ActiveRecord::RecordNotFound
+    render json: { errors: { payable_id: [ "Payable not found" ] } }, status: :not_found
   end
 
   # PATCH/PUT /payments/1
@@ -106,19 +67,73 @@ class Api::V1::PaymentsController < ApplicationController
     if @payment.update(payment_params)
       render json: @payment
     else
-      render json: @payment.errors, status: :unprocessable_entity
+      render_invalid_record(@payment)
     end
   end
 
   # DELETE /payments/1
   def destroy
-    @payment.destroy!
+    if @payment.destroy
+      head :no_content
+    else
+      render_invalid_record(@payment)
+    end
   end
 
   private
-    def valid_payable_type?(type)
-      %w[subscription order].include?(type.downcase)
+    # Links the just-created @payment to a subscription/order and applies its side effects.
+    # Raises ActiveRecord::RecordInvalid so #create can render a consistent error response.
+    def link_payment_to_payable!
+      case params[:payable_type].downcase
+      when "subscription"
+        apply_subscription_payment!(Subscription.find(params[:payable_id]))
+      when "order"
+        apply_order_payment!(Order.find(params[:payable_id]))
+      else
+        @payment.errors.add(:base, "Unknown payable type: #{params[:payable_type]}")
+        raise ActiveRecord::RecordInvalid, @payment
+      end
     end
+
+    # A subscription is considered settled once the accumulated paid_amount covers the plan price:
+    # the due_date is then pushed forward and only the excess (if any) carries over as paid_amount.
+    def apply_subscription_payment!(subscription)
+      SubscriptionPayment.create!(payment: @payment, subscription: subscription)
+
+      total_paid = params[:paid_amount].presence&.to_f || subscription.paid_amount + @payment.quantity
+      attributes = { paid_amount: total_paid, last_payment_date: @payment.paid_at || Date.today }
+
+      if total_paid >= subscription.plan.price
+        attributes[:due_date] = params[:due_date] || subscription.due_date + subscription.plan.subscription_duration
+        attributes[:paid_amount] = total_paid - subscription.plan.price
+      end
+
+      subscription.update!(attributes)
+    end
+
+    def apply_order_payment!(order)
+      order.register_payment!(@payment)
+    end
+
+    def valid_payable_type?(type)
+      %w[subscription order].include?(type.to_s.downcase)
+    end
+
+    def validate_payable_params!
+      errors = {}
+      errors[:payable_type] = [ "must be 'subscription' or 'order'" ] unless valid_payable_type?(params[:payable_type])
+      errors[:payable_id] = [ "is required" ] if params[:payable_id].blank?
+
+      render json: { errors: errors }, status: :unprocessable_entity if errors.any?
+    end
+
+    def render_invalid_record(record)
+      response = { errors: record.errors.to_hash(true) }
+      response[:remaining_balance] = record.remaining_balance if record.is_a?(Order)
+
+      render json: response, status: :unprocessable_entity
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_payment
       @payment = Payment.find(params.require(:id))

@@ -2,6 +2,7 @@
 
 one:
   plan: one
+  discipline: one
   user: one
   classroom: one
   schedule: 2025-03-09 21:16:00
@@ -9,6 +10,7 @@ one:
 
 two:
   plan: two
+  discipline: two
   user: two
   classroom: two
   schedule: 2025-03-09 21:16:00
