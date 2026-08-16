@@ -15,7 +15,8 @@ class Api::V1::AlumnsController < ApplicationController
     render json: {
       data: records,
       links: pagy_jsonapi_links(pagy),
-      pages: pagy.series.map { |item| item == :gap ? item : item.to_i }
+      pages: pagy.series.map { |item| item == :gap ? item : item.to_i },
+      total: pagy.count
     }
   end
 
