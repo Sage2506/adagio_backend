@@ -15,7 +15,17 @@ class Api::V1::GuardiansController < ApplicationController
   before_action :set_guardian, only: %i[ show update destroy associate ]
   # GET /api/v1/guardians
   def index
-    @guardians = Guardian.includes(:alumns).all
+    query = params[:query].to_s.strip
+    @guardians = Guardian.where(is_active: true)
+    if query.length >= 3
+      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(query.downcase)}%"
+      @guardians = @guardians
+                   .where("LOWER(CONCAT_WS(' ', name, last_name)) LIKE ?", pattern)
+                   .order(:name, :last_name)
+                   .limit(10)
+    else
+      @guardians = @guardians.none
+    end
     render json: { data: @guardians }
   end
 

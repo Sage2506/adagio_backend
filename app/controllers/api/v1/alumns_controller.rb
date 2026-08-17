@@ -31,8 +31,10 @@ class Api::V1::AlumnsController < ApplicationController
 
   # POST /api/v1/alumns
   def create
-    @alumn = Alumn.new(alumn_params.except(:guardian_id))
-    if @alumn.save
+    attributes = alumn_params
+    guardian_ids = attributes.delete(:guardian_ids)
+    @alumn = Alumn.new(attributes)
+    if save_with_guardians(guardian_ids)
       render json: @alumn, status: :created
     else
       render json: @alumn.errors, status: :unprocessable_entity
@@ -41,7 +43,9 @@ class Api::V1::AlumnsController < ApplicationController
 
   # PATCH/PUT /api/v1/alumns/1
   def update
-    if @alumn.update(alumn_params.except(:guardian_id))
+    attributes = alumn_params
+    guardian_ids = attributes.delete(:guardian_ids)
+    if update_with_guardians(attributes, guardian_ids)
       render json: @alumn
     else
       render json: @alumn.errors, status: :unprocessable_entity
@@ -102,8 +106,30 @@ class Api::V1::AlumnsController < ApplicationController
       @alumn = Alumn.find(params.require(:id))
     end
 
+    def save_with_guardians(guardian_ids)
+      Alumn.transaction do
+        @alumn.save!
+        @alumn.guardian_ids = guardian_ids if guardian_ids
+      end
+      true
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => error
+      @alumn.errors.add(:guardians, error.message) if @alumn.errors.empty?
+      false
+    end
+
+    def update_with_guardians(attributes, guardian_ids)
+      Alumn.transaction do
+        @alumn.update!(attributes)
+        @alumn.guardian_ids = guardian_ids if guardian_ids
+      end
+      true
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => error
+      @alumn.errors.add(:guardians, error.message) if @alumn.errors.empty?
+      false
+    end
+
     # Only allow a list of trusted parameters through.
     def alumn_params
-      params.require(:alumn).permit(:name, :last_name, :address, :phone_number, :email, :is_active, :birth_date, :guardian_id, :special_med_conditions, :is_guardian_required_for_leaving)
+      params.require(:alumn).permit(:name, :last_name, :address, :phone_number, :email, :is_active, :birth_date, :special_med_conditions, :is_guardian_required_for_leaving, guardian_ids: [])
     end
 end
