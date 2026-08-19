@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_14_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_17_020906) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -132,10 +132,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_14_000000) do
     t.bigint "alumn_id", null: false
     t.datetime "created_at", null: false
     t.datetime "paid_at"
+    t.integer "payment_method", default: 0, null: false
     t.decimal "quantity", precision: 12, scale: 2, null: false
+    t.string "reference"
     t.datetime "updated_at", null: false
     t.string "user_email"
     t.index ["alumn_id"], name: "index_payments_on_alumn_id"
+    t.index ["payment_method", "paid_at"], name: "index_payments_on_payment_method_and_paid_at"
+    t.index ["reference"], name: "index_payments_on_reference", unique: true, where: "(reference IS NOT NULL)"
     t.check_constraint "quantity > 0::numeric", name: "payments_quantity_positive"
   end
 

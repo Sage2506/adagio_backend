@@ -45,6 +45,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_predicate order, :partial?
     assert_equal 1, order.paid_amount
     assert_equal 1, order.payments.sum(:quantity)
+    assert_predicate order.payments.first, :cash?
   end
 
   test "creates a paid order when the advance matches the calculated total" do

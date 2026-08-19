@@ -106,7 +106,7 @@ class Api::V1::OrdersController < ApplicationController
         line
       end
       payload["payments"] = order.payments.order(paid_at: :asc, created_at: :asc).map do |payment|
-        item = payment.as_json(only: %i[id quantity paid_at created_at user_email])
+        item = payment.as_json(only: %i[id quantity paid_at created_at user_email payment_method])
         item["quantity"] = payment.quantity.to_f
         item
       end
@@ -155,6 +155,7 @@ class Api::V1::OrdersController < ApplicationController
       payment = Payment.create!(
         alumn_id: @order.alumn_id,
         quantity: amount,
+        payment_method: :cash,
         user_email: @current_user_email
       )
       @order.register_payment!(payment)
