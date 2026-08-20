@@ -1,14 +1,80 @@
 class Subscription < ApplicationRecord
   belongs_to :plan
   belongs_to :alumn
+  has_many :subscription_payments
+  has_many :payments, through: :subscription_payments
+  before_create :set_subscribed_at_if_blank
   before_create :set_defaults
+  enum :status, [ :active, :cancelled, :expired ]
+  scope :active, -> { where("status = 0")}
+  validates :custom_price, numericality: { greater_than: 0 }, allow_nil: true
 
   def set_defaults
-    if plan&.subscription_duration
-      self.due_date = Date.today + plan.subscription_duration.days
-    else
-      errors.add(:base, "Plan or subscription duration missing")
-      throw(:abort) # Prevents saving if no plan/duration is set
+    self.status = 0
+    self.due_date = calculate_due_date
+  end
+
+  # Regla de negocio: el día de subscribed_at define el mes/día de vencimiento
+  def calculate_due_date
+    date = (subscribed_at || Date.today).to_date
+    case date.day
+    when 1..7
+      date.next_month.beginning_of_month
+    when 8..21
+      date.next_month.change(day: 15)
+    when 22..31
+      (date + 2.months).beginning_of_month
     end
+  end
+
+  def fully_paid?
+    paid_amount >= effective_price
+  end
+
+  def remaining_balance
+    [ effective_price - paid_amount, 0 ].max
+  end
+
+  def payment_percentage
+    (paid_amount / effective_price * 100).round(2)
+  end
+
+  def effective_price
+    custom_price || plan.price
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[alumn_id plan_id]
+  end
+
+  def disable
+    update!(status: 1)
+  end
+
+  # `ransackable_associations` returns the names
+  # of searchable associations as an array of strings.
+  #
+  def self.ransackable_associations(auth_object = nil)
+    %w[alumn plan]
+  end
+
+  # `ransortable_attributes` by default returns the names
+  # of all attributes available for sorting as an array of strings.
+  #
+  def self.ransortable_attributes(auth_object = nil)
+    ransackable_attributes(auth_object)
+  end
+
+  # `ransackable_scopes` by default returns an empty array
+  # i.e. no class methods/scopes are authorized.
+  # For overriding with an allowlist, return an array of *symbols*.
+  #
+  def self.ransackable_scopes(auth_object = nil)
+    []
+  end
+
+  private
+  def set_subscribed_at_if_blank
+    self.subscribed_at ||= created_at
   end
 end

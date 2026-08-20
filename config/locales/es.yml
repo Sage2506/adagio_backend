@@ -1,0 +1,11 @@
+# config/locales/es.yml
+es:
+  activerecord:
+    attributes:
+      payment:
+        payment_methods:
+          cash: "Efectivo"
+          transfer: "Transferencia"
+          card: "Tarjeta"
+          mp: "Mercado Pago"
+          link: "Link de Pago"

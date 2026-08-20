@@ -42,11 +42,11 @@ class Api::V1::SubscriptionPaymentsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_subscription_payment
-      @subscription_payment = SubscriptionPayment.find(params.expect(:id))
+      @subscription_payment = SubscriptionPayment.find(params.require(:id))
     end
 
     # Only allow a list of trusted parameters through.
     def subscription_payment_params
-      params.expect(subscription_payment: [ :subcription_id, :payment_id ])
+      params.require(:subscription_payment).permit(:subcription_id, :payment_id)
     end
 end

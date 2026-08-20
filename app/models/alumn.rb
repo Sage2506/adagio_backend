@@ -5,7 +5,11 @@ class Alumn < ApplicationRecord
   has_many :orders
   has_many :payments
   has_one :subscription
+  has_one :plan, through: :subscription
+  accepts_nested_attributes_for :subscription
+  before_validation :downcase_all
   before_create :set_defaults
+  scope :active, -> { where("is_active = true") }
 
   def set_defaults
     self.is_active = true
@@ -19,10 +23,34 @@ class Alumn < ApplicationRecord
     subscription&.id
   end
 
-  def self.ransackable_attributes(auth_object = nil)
-    %w[name] + _ransackers.keys
+  def downcase_all
+    self.name = name.downcase if name.present?
+    self.last_name = last_name.downcase if last_name.present?
+    self.address = address.downcase if address.present?
+    self.phone_number = phone_number.downcase if phone_number.present?
+    self.email = email.downcase if email.present?
   end
 
+  ransacker :full_name, formatter: proc { |v| v.downcase } do |parent|
+    Arel::Nodes::NamedFunction.new("LOWER", [
+      Arel::Nodes::NamedFunction.new("CONCAT", [
+        parent.table[:name],
+        Arel::Nodes.build_quoted(" "),
+        parent.table[:last_name]
+      ])
+    ])
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[name last_name full_name email]
+  end
+
+  def disable
+    transaction do
+      update!(is_active: false)
+      subscription&.disable
+    end
+  end
   # `ransackable_associations` returns the names
   # of searchable associations as an array of strings.
   #

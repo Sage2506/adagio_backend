@@ -1,12 +1,24 @@
 class Api::V1::SubscriptionsController < ApplicationController
+  include Pagy::Backend
   before_action :authenticate_request!
   before_action :set_subscription, only: %i[ show update destroy ]
-
   # GET /subscriptions
   def index
-    @subscriptions = Subscription.all
+    base_scope = subscriptions_base_scope.includes(:alumn, :plan)
+    @q = if params[:full_name].present?
+      base_scope.ransack(alumn_full_name_cont: params[:full_name].downcase)
+    else
+      base_scope.ransack(params[:q])
+    end
 
-    render json: @subscriptions
+    pagy, records = pagy(@q.result(distinct: true).order(status: :asc, due_date: :asc))
+
+    render json: {
+      data: records.as_json(include: [ :alumn, :plan ]),
+      count: @q.result(distinct: true).count,
+      links: pagy_jsonapi_links(pagy),
+      pages: pagy.series.map { |item| item == :gap ? item : item.to_i }
+    }
   end
 
   # GET /subscriptions/1
@@ -17,7 +29,6 @@ class Api::V1::SubscriptionsController < ApplicationController
   # POST /subscriptions
   def create
     @subscription = Subscription.new(subscription_params)
-
     if @subscription.save
       render json: @subscription, status: :created
     else
@@ -36,17 +47,26 @@ class Api::V1::SubscriptionsController < ApplicationController
 
   # DELETE /subscriptions/1
   def destroy
-    @subscription.destroy!
+    @subscription.disable!
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_subscription
-      @subscription = Subscription.find(params.expect(:id))
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_subscription
+    @subscription = Subscription.find(params.require(:id))
+  end
 
-    # Only allow a list of trusted parameters through.
-    def subscription_params
-      params.expect(subscription: [ :plan_id, :alumn_id ])
+  # Only allow a list of trusted parameters through.
+  def subscription_params
+    params.require(:subscription).permit(:plan_id, :alumn_id, :due_date, :status, :subscribed_at, :custom_price)
+  end
+
+  # Devuelve el scope base según el parámetro include_inactive
+  def subscriptions_base_scope
+    if params[:include_inactive].present? && params[:include_inactive].to_s == 'true'
+      Subscription.all
+    else
+      Subscription.active
     end
+  end
 end

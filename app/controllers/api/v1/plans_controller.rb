@@ -5,7 +5,7 @@ class Api::V1::PlansController < ApplicationController
 
   # GET /plans
   def index
-    @q = Plan.ransack(params[:q])
+    @q = Plan.active.ransack(params[:q])
     pagy, records = pagy(@q.result(distinct: true))
     render json: { data: records, links: pagy_jsonapi_links(pagy), pages: pagy.series.map { |item| item == :gap ? item : item.to_i } }
   end
@@ -18,7 +18,6 @@ class Api::V1::PlansController < ApplicationController
   # POST /plans
   def create
     @plan = Plan.new(plan_params)
-
     if @plan.save
       render json: @plan, status: :created
     else
@@ -37,17 +36,22 @@ class Api::V1::PlansController < ApplicationController
 
   # DELETE /plans/1
   def destroy
-    @plan.destroy!
+    @plan.is_active = false
+    if @plan.save
+      render json: { successfull: true }, status: :ok
+    else
+      render json: @plan.errors, status: :unprocessable_entity
+    end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_plan
-      @plan = Plan.find(params.expect(:id))
+      @plan = Plan.find(params.require(:id))
     end
 
     # Only allow a list of trusted parameters through.
     def plan_params
-      params.expect(plan: [ :name, :price, :subscription_duration, :tolerance_days, :is_active ])
+      params.require(:plan).permit(:name, :price, :subscription_duration, :tolerance_days)
     end
 end

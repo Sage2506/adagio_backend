@@ -1,17 +1,27 @@
+  # GET /disciplines
+  # Returns a list of disciplines with their associated plan_disciplines and user_disciplines
+  # GET /disciplines/:id
+  # Returns a discipline with its associated plan_disciplines and user_disciplines
+  # POST /disciplines
+  # Creates a new discipline
+  # PATCH/PUT /disciplines/:id
+  # Updates a discipline's attributes
+  # DELETE /disciplines/:id
+  # Deletes a discipline
 class Api::V1::DisciplinesController < ApplicationController
   before_action :authenticate_request!
   before_action :set_discipline, only: %i[ show update destroy ]
 
   # GET /disciplines
   def index
-    @disciplines = Discipline.all
-
-    render json: @disciplines
+    @disciplines = Discipline.includes(:plan_disciplines, :user_disciplines).all
+    render json: { data: @disciplines.as_json(include: [:plan_disciplines, :user_disciplines]) }
   end
 
   # GET /disciplines/1
   def show
-    render json: @discipline
+    discipline = Discipline.includes(:plan_disciplines, :user_disciplines).find(@discipline.id)
+    render json: { data: discipline.as_json(include: [:plan_disciplines, :user_disciplines]) }
   end
 
   # POST /disciplines
@@ -42,11 +52,11 @@ class Api::V1::DisciplinesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_discipline
-      @discipline = Discipline.find(params.expect(:id))
+      @discipline = Discipline.find(params.require(:id))
     end
 
     # Only allow a list of trusted parameters through.
     def discipline_params
-      params.expect(discipline: [ :name, :is_active ])
+      params.require(:discipline).permit(:name, :is_active)
     end
 end

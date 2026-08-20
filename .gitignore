@@ -32,3 +32,11 @@
 /config/master.key
 
 /config/credentials/development.key
+
+.DS_Store
+
+/config/credentials/production.key
+
+# Ignore key files for decrypting credentials and more.
+/config/*.key
+

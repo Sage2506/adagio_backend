@@ -1,10 +1,29 @@
 class Plan < ApplicationRecord
   has_many :plan_disciplines
+  has_many :lessons, dependent: :destroy
   has_many :plans, through: :plan_disciplines
   has_many :subscriptions
+  before_create :set_registration_cost_if_blank
 
-   def self.ransackable_attributes(auth_object = nil)
+  scope :active, -> { where("is_active = true") }
+
+  before_validation :downcase_all
+  before_create :set_defaults
+
+  def set_defaults
+    self.is_active = true
+  end
+
+  def downcase_all
+    self.name = name.downcase if name.present?
+  end
+
+  def self.ransackable_attributes(auth_object = nil)
     %w[name] + _ransackers.keys
+  end
+
+  def downcase_all
+    self.name = name.downcase if name.present?
   end
 
   # `ransackable_associations` returns the names
@@ -27,5 +46,11 @@ class Plan < ApplicationRecord
   #
   def self.ransackable_scopes(auth_object = nil)
     []
+  end
+
+  private
+
+  def set_registration_cost_if_blank
+    self.registration_cost ||= 900.00
   end
 end
