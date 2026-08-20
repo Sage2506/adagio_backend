@@ -35,7 +35,7 @@ class Api::V1::AlumnsController < ApplicationController
     guardian_ids = attributes.delete(:guardian_ids)
     @alumn = Alumn.new(attributes)
     if save_with_guardians(guardian_ids)
-      render json: @alumn, status: :created
+      render json: @alumn.as_json(methods: %i[plan_id subscription_id]), status: :created
     else
       render json: @alumn.errors, status: :unprocessable_entity
     end
@@ -130,6 +130,10 @@ class Api::V1::AlumnsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def alumn_params
-      params.require(:alumn).permit(:name, :last_name, :address, :phone_number, :email, :is_active, :birth_date, :special_med_conditions, :is_guardian_required_for_leaving, guardian_ids: [])
+      params.require(:alumn).permit(
+        :name, :last_name, :address, :phone_number, :email, :is_active, :birth_date,
+        :special_med_conditions, :is_guardian_required_for_leaving, guardian_ids: [],
+        subscription_attributes: [ :plan_id, :subscribed_at, :custom_price ]
+      )
     end
 end

@@ -53,4 +53,26 @@ class SubscriptionTest < ActiveSupport::TestCase
       assert_equal Date.new(2025, 7, 15), subscription.calculate_due_date
     end
   end
+
+  test "uses a custom price for subscription balances" do
+    subscription = Subscription.new(plan: plans(:one), alumn: alumns(:one), custom_price: 120, paid_amount: 20)
+
+    assert_equal 120, subscription.effective_price
+    assert_equal 100, subscription.remaining_balance
+    assert_not_predicate subscription, :fully_paid?
+  end
+
+  test "uses the plan price when custom price is absent" do
+    subscription = Subscription.new(plan: plans(:one), alumn: alumns(:one), paid_amount: 0.5)
+
+    assert_equal plans(:one).price, subscription.effective_price
+    assert_in_delta 1.0, subscription.remaining_balance, 0.001
+  end
+
+  test "rejects non-positive custom prices" do
+    subscription = Subscription.new(plan: plans(:one), alumn: alumns(:one), custom_price: 0)
+
+    assert_not_predicate subscription, :valid?
+    assert_includes subscription.errors[:custom_price], "must be greater than 0"
+  end
 end

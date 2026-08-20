@@ -7,6 +7,8 @@ class Subscription < ApplicationRecord
   before_create :set_defaults
   enum :status, [ :active, :cancelled, :expired ]
   scope :active, -> { where("status = 0")}
+  validates :custom_price, numericality: { greater_than: 0 }, allow_nil: true
+
   def set_defaults
     self.status = 0
     self.due_date = calculate_due_date
@@ -26,15 +28,19 @@ class Subscription < ApplicationRecord
   end
 
   def fully_paid?
-    paid_amount >= plan.price
+    paid_amount >= effective_price
   end
 
   def remaining_balance
-    [ plan.price - paid_amount, 0 ].max
+    [ effective_price - paid_amount, 0 ].max
   end
 
   def payment_percentage
-    (paid_amount / plan.price * 100).round(2)
+    (paid_amount / effective_price * 100).round(2)
+  end
+
+  def effective_price
+    custom_price || plan.price
   end
 
   def self.ransackable_attributes(auth_object = nil)

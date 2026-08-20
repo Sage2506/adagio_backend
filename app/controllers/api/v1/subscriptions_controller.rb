@@ -58,7 +58,7 @@ class Api::V1::SubscriptionsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def subscription_params
-    params.require(:subscription).permit(:plan_id, :alumn_id, :due_date, :status, :subscribed_at)
+    params.require(:subscription).permit(:plan_id, :alumn_id, :due_date, :status, :subscribed_at, :custom_price)
   end
 
   # Devuelve el scope base según el parámetro include_inactive

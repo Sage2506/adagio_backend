@@ -95,7 +95,7 @@ class Api::V1::PaymentsController < ApplicationController
       end
     end
 
-    # A subscription is considered settled once the accumulated paid_amount covers the plan price:
+    # A subscription is considered settled once the accumulated paid_amount covers its effective price:
     # the due_date is then pushed forward and only the excess (if any) carries over as paid_amount.
     def apply_subscription_payment!(subscription)
       SubscriptionPayment.create!(payment: @payment, subscription: subscription)
@@ -103,9 +103,9 @@ class Api::V1::PaymentsController < ApplicationController
       total_paid = params[:paid_amount].presence&.to_f || subscription.paid_amount + @payment.quantity
       attributes = { paid_amount: total_paid, last_payment_date: @payment.paid_at || Date.today }
 
-      if total_paid >= subscription.plan.price
+      if total_paid >= subscription.effective_price
         attributes[:due_date] = params[:due_date] || subscription.due_date + subscription.plan.subscription_duration
-        attributes[:paid_amount] = total_paid - subscription.plan.price
+        attributes[:paid_amount] = total_paid - subscription.effective_price
       end
 
       subscription.update!(attributes)

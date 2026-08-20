@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_17_020906) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_19_234315) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -185,6 +185,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_17_020906) do
   create_table "subscriptions", force: :cascade do |t|
     t.bigint "alumn_id", null: false
     t.datetime "created_at", null: false
+    t.float "custom_price"
     t.date "due_date"
     t.date "last_payment_date"
     t.float "paid_amount", default: 0.0
