@@ -21,7 +21,7 @@ class Payment < ApplicationRecord
   before_validation :set_default_payment_method, on: :create
   scope :by_method, ->(method) { where(payment_method: payment_methods[method]) if method.present? }
   scope :cash_payments, -> { where(payment_method: :cash) }
-  scope :online_payments, -> { where(payment_method: [:mp, :link, :card]) }
+  scope :online_payments, -> { where(payment_method: [ :mp, :link, :card ]) }
   scope :pending, -> { where(paid_at: nil) }
   scope :completed, -> { where.not(paid_at: nil) }
 

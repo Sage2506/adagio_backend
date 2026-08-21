@@ -1,13 +1,13 @@
-  # GET /classrooms
-  # Returns a list of classrooms with their associated lessons
-  # GET /classrooms/:id
-  # Returns a classroom with its associated lessons
-  # POST /classrooms
-  # Creates a new classroom
-  # PATCH/PUT /classrooms/:id
-  # Updates a classroom's attributes
-  # DELETE /classrooms/:id
-  # Deletes a classroom
+# GET /classrooms
+# Returns a list of classrooms with their associated lessons
+# GET /classrooms/:id
+# Returns a classroom with its associated lessons
+# POST /classrooms
+# Creates a new classroom
+# PATCH/PUT /classrooms/:id
+# Updates a classroom's attributes
+# DELETE /classrooms/:id
+# Deletes a classroom
 class Api::V1::ClassroomsController < ApplicationController
   before_action :authenticate_request!
   before_action :set_classroom, only: %i[ show update destroy ]

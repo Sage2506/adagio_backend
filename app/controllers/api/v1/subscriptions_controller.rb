@@ -47,7 +47,7 @@ class Api::V1::SubscriptionsController < ApplicationController
 
   # DELETE /subscriptions/1
   def destroy
-    @subscription.disable!
+    @subscription.disable
   end
 
   private
@@ -63,7 +63,7 @@ class Api::V1::SubscriptionsController < ApplicationController
 
   # Devuelve el scope base según el parámetro include_inactive
   def subscriptions_base_scope
-    if params[:include_inactive].present? && params[:include_inactive].to_s == 'true'
+    if params[:include_inactive].present? && params[:include_inactive].to_s == "true"
       Subscription.all
     else
       Subscription.active

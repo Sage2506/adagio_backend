@@ -22,3 +22,5 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 gem "image_processing", "~> 1.2"
+
+gem "devise", "~> 5.0"

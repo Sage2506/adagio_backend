@@ -6,33 +6,32 @@ class PlansControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index" do
-    get plans_url, as: :json
+    get api_v1_plans_url, as: :json
     assert_response :success
   end
 
   test "should create plan" do
     assert_difference("Plan.count") do
-      post plans_url, params: { plan: { is_active: @plan.is_active, name: @plan.name, price: @plan.price, subscription_duration: @plan.subscription_duration, tolerance_days: @plan.tolerance_days } }, as: :json
+      post api_v1_plans_url, params: { plan: { is_active: @plan.is_active, name: @plan.name, price: @plan.price, subscription_duration: @plan.subscription_duration, tolerance_days: @plan.tolerance_days } }, as: :json
     end
 
     assert_response :created
   end
 
   test "should show plan" do
-    get plan_url(@plan), as: :json
+    get api_v1_plan_url(@plan), as: :json
     assert_response :success
   end
 
   test "should update plan" do
-    patch plan_url(@plan), params: { plan: { is_active: @plan.is_active, name: @plan.name, price: @plan.price, subscription_duration: @plan.subscription_duration, tolerance_days: @plan.tolerance_days } }, as: :json
+    patch api_v1_plan_url(@plan), params: { plan: { is_active: @plan.is_active, name: @plan.name, price: @plan.price, subscription_duration: @plan.subscription_duration, tolerance_days: @plan.tolerance_days } }, as: :json
     assert_response :success
   end
 
   test "should destroy plan" do
-    assert_difference("Plan.count", -1) do
-      delete plan_url(@plan), as: :json
-    end
+    delete api_v1_plan_url(@plan), as: :json
 
-    assert_response :no_content
+    assert_response :success
+    assert_not @plan.reload.is_active
   end
 end

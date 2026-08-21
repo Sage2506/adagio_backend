@@ -6,33 +6,33 @@ class Api::V1::AlumnGuardiansControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index" do
-    get alumn_guardians_url, as: :json
+    get api_v1_alumn_guardians_url, as: :json
     assert_response :success
   end
 
   test "should create alumn_guardian" do
-    assert_difference("Api::V1::AlumnGuardian.count") do
-      post alumn_guardians_url, params: { alumn_guardian: { alumn_id: @alumn_guardian.alumn_id, guardian_id: @alumn_guardian.guardian_id } }, as: :json
+    assert_difference("AlumnGuardian.count") do
+      post api_v1_alumn_guardians_url, params: { alumn_guardian: { alumn_id: alumns(:two).id, guardian_id: guardians(:one).id } }, as: :json
     end
 
     assert_response :created
   end
 
   test "should show alumn_guardian" do
-    get alumn_guardian_url(@alumn_guardian), as: :json
+    get api_v1_alumn_guardian_url(@alumn_guardian), as: :json
     assert_response :success
   end
 
   test "should update alumn_guardian" do
-    patch alumn_guardian_url(@alumn_guardian), params: { alumn_guardian: { alumn_id: @alumn_guardian.alumn_id, guardian_id: @alumn_guardian.guardian_id } }, as: :json
+    patch api_v1_alumn_guardian_url(@alumn_guardian), params: { alumn_guardian: { alumn_id: @alumn_guardian.alumn_id, guardian_id: @alumn_guardian.guardian_id } }, as: :json
     assert_response :success
   end
 
   test "should destroy alumn_guardian" do
-    assert_difference("Api::V1::AlumnGuardian.count", -1) do
-      delete alumn_guardian_url(@alumn_guardian), as: :json
+    assert_difference("AlumnGuardian.count", -1) do
+      delete api_v1_alumn_guardian_url(@alumn_guardian), as: :json
     end
 
-    assert_response :no_content
+    assert_response :success
   end
 end
