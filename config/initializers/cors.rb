@@ -7,11 +7,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins [
-    "localhost:5173",
-    "http://189.186.229.170:5173",
-    /http:\/\/192\.168\.\d+\.\d+(:\d+)?/
-    ]
+    origins "https://adagioacademia.com"
 
     resource "*",
       headers: :any,
