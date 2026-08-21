@@ -1,13 +1,13 @@
-  # GET /lessons
-  # Returns a list of lessons with their associated plan, user, and classroom
-  # GET /lessons/:id
-  # Returns a lesson with its associated plan, user, and classroom
-  # POST /lessons
-  # Creates a new lesson
-  # PATCH/PUT /lessons/:id
-  # Updates a lesson's attributes
-  # DELETE /lessons/:id
-  # Deletes a lesson
+# GET /lessons
+# Returns a list of lessons with their associated plan, user, and classroom
+# GET /lessons/:id
+# Returns a lesson with its associated plan, user, and classroom
+# POST /lessons
+# Creates a new lesson
+# PATCH/PUT /lessons/:id
+# Updates a lesson's attributes
+# DELETE /lessons/:id
+# Deletes a lesson
 class Api::V1::LessonsController < ApplicationController
   before_action :authenticate_request!
   before_action :set_lesson, only: %i[ show update destroy ]
@@ -15,13 +15,13 @@ class Api::V1::LessonsController < ApplicationController
   # GET /lessons
   def index
     @lessons = Lesson.includes(:plan, :user, :classroom).all
-    render json: { data: @lessons.as_json(include: [:plan, :user, :classroom]) }
+    render json: { data: @lessons.as_json(include: [ :plan, :user, :classroom ]) }
   end
 
   # GET /lessons/1
   def show
     lesson = Lesson.includes(:plan, :user, :classroom).find(@lesson.id)
-    render json: { data: lesson.as_json(include: [:plan, :user, :classroom]) }
+    render json: { data: lesson.as_json(include: [ :plan, :user, :classroom ]) }
   end
 
   # POST /lessons
@@ -57,6 +57,6 @@ class Api::V1::LessonsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def lesson_params
-      params.require(:lesson).permit(:plan_id, :user_id, :classroom_id, :schedule, :status)
+      params.require(:lesson).permit(:plan_id, :user_id, :classroom_id, :discipline_id, :schedule, :status)
     end
 end

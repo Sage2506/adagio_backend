@@ -6,31 +6,33 @@ class DisciplinesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index" do
-    get disciplines_url, as: :json
+    get api_v1_disciplines_url, as: :json
     assert_response :success
   end
 
   test "should create discipline" do
     assert_difference("Discipline.count") do
-      post disciplines_url, params: { discipline: { is_active: @discipline.is_active, name: @discipline.name } }, as: :json
+      post api_v1_disciplines_url, params: { discipline: { is_active: @discipline.is_active, name: @discipline.name } }, as: :json
     end
 
     assert_response :created
   end
 
   test "should show discipline" do
-    get discipline_url(@discipline), as: :json
+    get api_v1_discipline_url(@discipline), as: :json
     assert_response :success
   end
 
   test "should update discipline" do
-    patch discipline_url(@discipline), params: { discipline: { is_active: @discipline.is_active, name: @discipline.name } }, as: :json
+    patch api_v1_discipline_url(@discipline), params: { discipline: { is_active: @discipline.is_active, name: @discipline.name } }, as: :json
     assert_response :success
   end
 
   test "should destroy discipline" do
+    discipline = Discipline.create!(name: "Temp", is_active: true)
+
     assert_difference("Discipline.count", -1) do
-      delete discipline_url(@discipline), as: :json
+      delete api_v1_discipline_url(discipline), as: :json
     end
 
     assert_response :no_content

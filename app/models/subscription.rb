@@ -6,7 +6,7 @@ class Subscription < ApplicationRecord
   before_create :set_subscribed_at_if_blank
   before_create :set_defaults
   enum :status, [ :active, :cancelled, :expired ]
-  scope :active, -> { where("status = 0")}
+  scope :active, -> { where("status = 0") }
   validates :custom_price, numericality: { greater_than: 0 }, allow_nil: true
 
   def set_defaults

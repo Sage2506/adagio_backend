@@ -47,6 +47,6 @@ class Api::V1::SubscriptionPaymentsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def subscription_payment_params
-      params.require(:subscription_payment).permit(:subcription_id, :payment_id)
+      params.require(:subscription_payment).permit(:subscription_id, :payment_id)
     end
 end

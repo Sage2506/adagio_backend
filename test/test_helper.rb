@@ -14,3 +14,14 @@ module ActiveSupport
     # Add more helper methods to be used by all tests here...
   end
 end
+
+# Default auth stub for API integration tests, so scaffolded requests don't
+# need to know about Cognito. Tests needing a different identity can still
+# override with `CognitoAuth.stub :verify_token, [...] do ... end`.
+class ActionDispatch::IntegrationTest
+  setup do
+    CognitoAuth.define_singleton_method(:verify_token) do |_token|
+      [ { "email" => "test@example.com" } ]
+    end
+  end
+end

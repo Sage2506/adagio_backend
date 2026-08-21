@@ -8,7 +8,7 @@ class Api::V1::AlumnsController < ApplicationController
     alumns = Alumn.active
     if params[:birth_month].present?
       month = params[:birth_month].to_i
-      alumns = alumns.where('EXTRACT(MONTH FROM birth_date) = ?', month)
+      alumns = alumns.where("EXTRACT(MONTH FROM birth_date) = ?", month)
     end
     @q = alumns.ransack(params[:q])
     pagy, records = pagy(@q.result(distinct: true))
@@ -56,14 +56,14 @@ class Api::V1::AlumnsController < ApplicationController
   # Asocia un guardian a un alumn
   def associate
     unless params[:guardian_id].present?
-      return render json: { errors: ['guardian_id es requerido'] }, status: :unprocessable_entity
+      return render json: { errors: [ "guardian_id es requerido" ] }, status: :unprocessable_entity
     end
     guardian = Guardian.find_by(id: params[:guardian_id])
     unless guardian
-      return render json: { errors: ['Guardian no encontrado'] }, status: :not_found
+      return render json: { errors: [ "Guardian no encontrado" ] }, status: :not_found
     end
     if @alumn.guardians.exists?(guardian.id)
-      return render json: { errors: ['Guardian ya asociado'] }, status: :unprocessable_entity
+      return render json: { errors: [ "Guardian ya asociado" ] }, status: :unprocessable_entity
     end
     @alumn.guardians << guardian
     render json: { data: @alumn }, status: :ok
@@ -81,12 +81,12 @@ class Api::V1::AlumnsController < ApplicationController
   # GET /api/v1/alumns/birthdays_by_month?month=5
   def birthdays_by_month
     unless params[:month].present?
-      return render json: { error: 'El parámetro month es requerido' }, status: :bad_request
+      return render json: { error: "El parámetro month es requerido" }, status: :bad_request
     end
 
     month = params[:month].to_i
     unless month.between?(0, 11)
-      return render json: { error: 'El mes debe estar entre 0 y 11' }, status: :bad_request
+      return render json: { error: "El mes debe estar entre 0 y 11" }, status: :bad_request
     end
 
     # Convertir de 0-11 a 1-12 para consulta SQL
@@ -94,10 +94,10 @@ class Api::V1::AlumnsController < ApplicationController
     alumns = Alumn
                    .joins(:subscription)
                    .merge(Subscription.active)
-                   .where('EXTRACT(MONTH FROM birth_date) = ?', sql_month)
+                   .where("EXTRACT(MONTH FROM birth_date) = ?", sql_month)
                    .order(:birth_date)
 
-    render json: alumns , status: :ok
+    render json: alumns, status: :ok
   end
 
   private

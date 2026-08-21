@@ -1,15 +1,15 @@
-  # GET /api/v1/guardians
-  # Returns a list of guardians with their associated alumns
-  # GET /api/v1/guardians/:id
-  # Returns a guardian and its associated alumns
-  # POST /api/v1/guardians
-  # Creates a new guardian. If alumn_id is present, associates the guardian with the alumn
-  # PATCH/PUT /api/v1/guardians/:id
-  # Updates a guardian's attributes
-  # PATCH/PUT /api/v1/guardians/:id/associate
-  # Associates an alumn to the guardian if alumn_id is present
-  # DELETE /api/v1/guardians/:id
-  # Disables a guardian (soft delete)
+# GET /api/v1/guardians
+# Returns a list of guardians with their associated alumns
+# GET /api/v1/guardians/:id
+# Returns a guardian and its associated alumns
+# POST /api/v1/guardians
+# Creates a new guardian. If alumn_id is present, associates the guardian with the alumn
+# PATCH/PUT /api/v1/guardians/:id
+# Updates a guardian's attributes
+# PATCH/PUT /api/v1/guardians/:id/associate
+# Associates an alumn to the guardian if alumn_id is present
+# DELETE /api/v1/guardians/:id
+# Disables a guardian (soft delete)
 class Api::V1::GuardiansController < ApplicationController
   before_action :authenticate_request!
   before_action :set_guardian, only: %i[ show update destroy associate ]

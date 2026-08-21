@@ -8,7 +8,9 @@ class User < ApplicationRecord
 
   has_secure_password
 
-  validates :email, presence: true, uniqueness: true, format: { with: /@/ }
+  validates :email, presence: true, uniqueness: true,
+    format: { with: URI::MailTo::EMAIL_REGEXP }
+
   validates :password, presence: true
 
   enum :role, { unasigned: 0, admin: 1, receptionis: 2, teacher: 3 }
