@@ -1,5 +1,5 @@
 class Api::V1::PaymentsController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
   before_action :set_payment, only: %i[ show update destroy ]
   before_action :validate_payable_params!, only: :create
 
@@ -31,12 +31,12 @@ class Api::V1::PaymentsController < ApplicationController
     end
     # Apply ransack search and pagination
     @q = @payments.ransack(params[:q])
-    pagy, records = pagy(@q.result(distinct: true))
+    pagy, records = pagy(:offset, @q.result(distinct: true))
 
     render json: {
       data: records,
-      links: pagy_jsonapi_links(pagy),
-      pages: pagy.series.map { |item| item == :gap ? item : item.to_i }
+      links: pagy.urls_hash,
+      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i }
     }
   end
 

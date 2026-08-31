@@ -5,13 +5,9 @@
 # Should you just cherry pick part of this file, please maintain the require-order of the extras
 
 
-# Pagy Variables
-# See https://ddnexus.github.io/pagy/docs/api/pagy#variables
-# You can set any pagy variable as a Pagy::DEFAULT. They can also be overridden per instance by just passing them to
-# Pagy.new|Pagy::Countless.new|Pagy::Calendar::*.new or any of the #pagy* controller methods
-# Here are the few that make more sense as DEFAULTs:
-Pagy::DEFAULT[:limit]       = 10                    # default
-Pagy::DEFAULT[:size]        = 5                     # default
+# Pagy 43 configuration options remain mutable until explicitly frozen below.
+Pagy::OPTIONS[:limit] = 10
+Pagy::OPTIONS[:jsonapi] = true
 # Pagy::DEFAULT[:ends]        = true                  # default
 # Pagy::DEFAULT[:page_param]  = :page                 # default
 # Pagy::DEFAULT[:count_args]  = []                    # example for non AR ORMs
@@ -152,7 +148,6 @@ Pagy::DEFAULT[:size]        = 5                     # default
 # Overflow extra: Allow for easy handling of overflowing pages
 # See https://ddnexus.github.io/pagy/docs/extras/overflow
 # require 'pagy/extras/overflow'
-Pagy::DEFAULT[:overflow] = :last_page    # default  (other options: :last_page and :exception)
 
 # Trim extra: Remove the page=1 param from links
 # See https://ddnexus.github.io/pagy/docs/extras/trim
@@ -167,7 +162,6 @@ Pagy::DEFAULT[:overflow] = :last_page    # default  (other options: :last_page a
 
 # Jsonapi extra: Implements JSON:API specifications
 # See https://ddnexus.github.io/pagy/docs/extras/jsonapi
-require "pagy/extras/jsonapi"   # must be required after the other extras
 # set to false only if you want to make :jsonapi an opt-in variable
 # Pagy::DEFAULT[:jsonapi] = false  # default true
 
@@ -216,5 +210,5 @@ require "pagy/extras/jsonapi"   # must be required after the other extras
 # require 'pagy/extras/i18n'
 
 
-# When you are done setting your own default freeze it, so it will not get changed accidentally
-Pagy::DEFAULT.freeze
+# When you are done setting your own options freeze them, so they will not get changed accidentally
+Pagy::OPTIONS.freeze

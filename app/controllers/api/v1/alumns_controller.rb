@@ -1,5 +1,5 @@
 class Api::V1::AlumnsController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
   before_action :authenticate_request!
   before_action :set_alumn, only: %i[ show update destroy associate ]
 
@@ -11,11 +11,11 @@ class Api::V1::AlumnsController < ApplicationController
       alumns = alumns.where("EXTRACT(MONTH FROM birth_date) = ?", month)
     end
     @q = alumns.ransack(params[:q])
-    pagy, records = pagy(@q.result(distinct: true))
+    pagy, records = pagy(:offset, @q.result(distinct: true))
     render json: {
       data: records,
-      links: pagy_jsonapi_links(pagy),
-      pages: pagy.series.map { |item| item == :gap ? item : item.to_i },
+      links: pagy.urls_hash,
+      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i },
       total: pagy.count
     }
   end

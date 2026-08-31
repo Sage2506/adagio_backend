@@ -1,5 +1,5 @@
 class Api::V1::SubscriptionsController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
   before_action :authenticate_request!
   before_action :set_subscription, only: %i[ show update destroy ]
   # GET /subscriptions
@@ -11,13 +11,13 @@ class Api::V1::SubscriptionsController < ApplicationController
       base_scope.ransack(params[:q])
     end
 
-    pagy, records = pagy(@q.result(distinct: true).order(status: :asc, due_date: :asc))
+    pagy, records = pagy(:offset, @q.result(distinct: true).order(status: :asc, due_date: :asc))
 
     render json: {
       data: records.as_json(include: [ :alumn, :plan ]),
       count: @q.result(distinct: true).count,
-      links: pagy_jsonapi_links(pagy),
-      pages: pagy.series.map { |item| item == :gap ? item : item.to_i }
+      links: pagy.urls_hash,
+      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i }
     }
   end
 
