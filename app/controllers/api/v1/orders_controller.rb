@@ -1,5 +1,5 @@
 class Api::V1::OrdersController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
   before_action :authenticate_request!
   before_action :set_order, only: %i[ show update destroy ]
 
@@ -8,12 +8,12 @@ class Api::V1::OrdersController < ApplicationController
     scope = filtered_orders_scope
     return if performed?
 
-    pagy, records = pagy(scope.order(created_at: :desc))
+    pagy, records = pagy(:offset, scope.order(created_at: :desc))
     render json: {
       data: records.map { |order| serialize_order(order) },
       count: scope.count,
-      links: pagy_jsonapi_links(pagy),
-      pages: pagy.series.map { |item| item == :gap ? item : item.to_i }
+      links: pagy.urls_hash,
+      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i }
     }
   end
 

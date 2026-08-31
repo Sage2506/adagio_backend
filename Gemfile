@@ -1,10 +1,10 @@
 source "https://rubygems.org"
 gem "pg", "~> 1.6"
-gem "rails", "~> 8.1.1"
+gem "rails", "~> 8.1.3"
 gem "puma", ">= 5.0"
-gem "bcrypt", "~> 3.1.7"
+gem "bcrypt", "~> 3.1.22"
 gem "jwt"
-gem "aws-sdk-cognitoidentityprovider", "~> 1.131"
+gem "aws-sdk-cognitoidentityprovider", "~> 1.149"
 gem "httparty"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
@@ -14,13 +14,14 @@ gem "bootsnap", require: false
 gem "kamal", require: false
 gem "thruster", require: false
 gem "rack-cors"
-gem "pagy", "~> 9.4"
+gem "pagy", "~> 43.6"
 gem "ransack"
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "brakeman", require: false
   gem "rubocop-rails-omakase", require: false
 end
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.0"
+gem "mini_magick", "~> 5.0"
 
 gem "devise", "~> 5.0"
