@@ -20,8 +20,8 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "minitest", "~> 5.25"
   gem "brakeman", require: false
-  gem 'rubocop', require: false
-  gem 'rubocop-rails', require: false  # If using Rails
+  gem "rubocop", require: false
+  gem "rubocop-rails", require: false  # If using Rails
   gem "rubocop-rails-omakase", require: false
 end
 gem "image_processing", "~> 2.0"
