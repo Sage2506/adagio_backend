@@ -18,7 +18,7 @@ gem "pagy", "~> 43.6"
 gem "ransack"
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
-  gem "minitest", "~> 5.25"
+  gem "minitest", "~> 6.0"
   gem "brakeman", require: false
   gem "rubocop", require: false
   gem "rubocop-rails", require: false  # If using Rails
