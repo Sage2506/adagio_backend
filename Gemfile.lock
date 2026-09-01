@@ -77,8 +77,8 @@ GEM
       uri (>= 0.13.1)
     ast (2.4.2)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1281.0)
-    aws-sdk-cognitoidentityprovider (1.149.0)
+    aws-partitions (1.1282.0)
+    aws-sdk-cognitoidentityprovider (1.151.0)
       aws-sdk-core (~> 3, >= 3.254.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-core (3.254.1)
@@ -386,7 +386,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  aws-sdk-cognitoidentityprovider (~> 1.149)
+  aws-sdk-cognitoidentityprovider (~> 1.151)
   bcrypt (~> 3.1.22)
   bootsnap
   brakeman
