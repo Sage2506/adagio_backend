@@ -34,4 +34,64 @@ class Api::V1::AlumnsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_not @alumn.reload.is_active
   end
+
+  test "creates a subscription due on the first when enrolled on day 7" do
+    plan = plans(:one)
+    assert_difference [ "Alumn.count", "Subscription.count" ], 1 do
+      post api_v1_alumns_url, params: {
+        alumn: {
+          name: "Elena",
+          last_name: "Lopez",
+          birth_date: "2017-07-07",
+          subscription_attributes: {
+            plan_id: plan.id,
+            subscribed_at: "2026-08-07"
+          }
+        }
+      }, as: :json
+    end
+    assert_response :created
+    subscription = Alumn.last.subscription
+    assert_equal Date.new(2026, 8, 1), subscription.due_date
+  end
+
+  test "creates a subscription due on the 15 when enrolled on day 8" do
+    plan = plans(:one)
+    assert_difference [ "Alumn.count", "Subscription.count" ], 1 do
+      post api_v1_alumns_url, params: {
+        alumn: {
+          name: "Elena",
+          last_name: "Lopez",
+          birth_date: "2017-07-07",
+          subscription_attributes: {
+            plan_id: plan.id,
+            subscribed_at: "2026-08-08"
+          }
+        }
+      }, as: :json
+    end
+    assert_response :created
+    subscription = Alumn.last.subscription
+    assert_equal Date.new(2026, 8, 15), subscription.due_date
+  end
+
+  test "creates a subscription due on the first of the next month when enrolled on day 22" do
+    plan = plans(:one)
+    assert_difference [ "Alumn.count", "Subscription.count" ], 1 do
+      post api_v1_alumns_url, params: {
+        alumn: {
+          name: "Elena",
+          last_name: "Lopez",
+          birth_date: "2017-07-07",
+          subscription_attributes: {
+            plan_id: plan.id,
+            subscribed_at: "2026-08-22"
+          }
+        }
+      }, as: :json
+    end
+    assert_response :created
+    subscription = Alumn.last.subscription
+    assert_equal Date.new(2026, 9, 1), subscription.due_date
+  end
 end

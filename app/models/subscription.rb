@@ -19,11 +19,11 @@ class Subscription < ApplicationRecord
     date = (subscribed_at || Date.today).to_date
     case date.day
     when 1..7
-      date.next_month.beginning_of_month
+      date.beginning_of_month
     when 8..21
-      date.next_month.change(day: 15)
+      date.change(day: 15)
     when 22..31
-      (date + 2.months).beginning_of_month
+      date.next_month.beginning_of_month
     end
   end
 

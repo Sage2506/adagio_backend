@@ -78,6 +78,7 @@ Rails.application.configure do
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   config.hosts += [
+  "localhost",
   "adagio-backend.onrender.com",        # ← Tu dominio de Render
   "adagioacademia.com",                 # ← Tu dominio del frontend
   "www.adagioacademia.com"              # ← Si usas www
