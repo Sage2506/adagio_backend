@@ -104,7 +104,7 @@ class Api::V1::PaymentsController < ApplicationController
       attributes = { paid_amount: total_paid, last_payment_date: @payment.paid_at || Date.today }
 
       if total_paid >= subscription.effective_price
-        attributes[:due_date] = params[:due_date] || subscription.due_date + subscription.plan.subscription_duration
+        attributes[:due_date] = subscription.due_date + 1.month
         attributes[:paid_amount] = total_paid - subscription.effective_price
       end
 

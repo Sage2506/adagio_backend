@@ -14,11 +14,11 @@ class Api::V1::PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal Date.new(2025, 3, 9), @subscription.due_date
   end
 
-  test "exact payment moves due_date by the plan duration and resets paid_amount" do
+  test "exact payment moves due_date forward one month and resets paid_amount" do
     post_payment(quantity: @subscription.plan.price)
 
     @subscription.reload
-    assert_equal Date.new(2025, 3, 9) + @subscription.plan.subscription_duration, @subscription.due_date
+    assert_equal Date.new(2025, 4, 9), @subscription.due_date
     assert_equal 0.0, @subscription.paid_amount
   end
 
@@ -27,7 +27,7 @@ class Api::V1::PaymentsControllerTest < ActionDispatch::IntegrationTest
     post_payment(quantity: overpaid_quantity)
 
     @subscription.reload
-    assert_equal Date.new(2025, 3, 9) + @subscription.plan.subscription_duration, @subscription.due_date
+    assert_equal Date.new(2025, 4, 9), @subscription.due_date
     assert_in_delta 0.5, @subscription.paid_amount, 0.001
   end
 
