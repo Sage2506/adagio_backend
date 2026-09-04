@@ -4,7 +4,7 @@ gem "rails", "~> 8.1.3"
 gem "puma", ">= 5.0"
 gem "bcrypt", "~> 3.1.22"
 gem "jwt"
-gem "aws-sdk-cognitoidentityprovider", "~> 1.149"
+gem "aws-sdk-cognitoidentityprovider", "~> 1.151"
 gem "httparty"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
@@ -18,7 +18,7 @@ gem "pagy", "~> 43.6"
 gem "ransack"
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
-  gem "minitest", "~> 5.25"
+  gem "minitest", "~> 6.0"
   gem "brakeman", require: false
   gem "rubocop", require: false
   gem "rubocop-rails", require: false  # If using Rails

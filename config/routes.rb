@@ -35,7 +35,8 @@ Rails.application.routes.draw do
       # post "/auth/login", to: "authentication#login"
       # config/routes.rb
       post "auth/login", to: "auth#login"
-      get "profile", to: "api#profile"  # Protected endpoint
+      post "auth/logout", to: "auth#logout"
+      get "auth/me", to: "auth#me"
     end
   end
   # Defines the root path route ("/")

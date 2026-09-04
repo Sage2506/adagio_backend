@@ -8,8 +8,7 @@ module Authenticable
   private
 
   def authenticate_request!
-    header = request.headers["Authorization"]
-    token = header&.split("Bearer ")&.last
+    token = cookies[:jwt]
     begin
     decoded = CognitoAuth.verify_token(token)
     @current_user_email = decoded[0]["email"]
