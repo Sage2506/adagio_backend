@@ -53,6 +53,41 @@ class CognitoAuth
     end
   end
 
+  def self.refresh(refresh_token)
+    client = Aws::CognitoIdentityProvider::Client.new(
+      region: Rails.application.credentials.aws[:region],
+      access_key_id: Rails.application.credentials.aws[:access_key_id],
+      secret_access_key: Rails.application.credentials.aws[:secret_access_key]
+    )
+
+    begin
+      response = client.initiate_auth(
+        auth_flow: "REFRESH_TOKEN_AUTH",
+        client_id: Rails.application.credentials.aws[:cognito_client_id],
+        auth_parameters: {
+          "REFRESH_TOKEN" => refresh_token
+        }
+      )
+
+      if response.authentication_result
+        {
+          success: true,
+          tokens: {
+            id_token: response.authentication_result.id_token,
+            access_token: response.authentication_result.access_token,
+            refresh_token: response.authentication_result.refresh_token || refresh_token
+          }
+        }
+      else
+        { error: "Unable to refresh token", code: "RefreshFailed" }
+      end
+    rescue Aws::CognitoIdentityProvider::Errors::NotAuthorizedException
+      { error: "Refresh token expired or invalid", code: "NotAuthorized" }
+    rescue Aws::CognitoIdentityProvider::Errors::ServiceError => e
+      { error: e.message, code: e.code }
+    end
+  end
+
   # Verify JWT token from frontend
   def self.verify_token(token)
     jwks_url = "https://cognito-idp.#{Rails.application.credentials.aws[:region]}.amazonaws.com/#{Rails.application.credentials.aws[:cognito_user_pool_id]}/.well-known/jwks.json"
