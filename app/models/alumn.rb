@@ -9,6 +9,7 @@ class Alumn < ApplicationRecord
   accepts_nested_attributes_for :subscription
   before_validation :downcase_all
   before_create :set_defaults
+  validate :email_or_phone_number_present
   scope :active, -> { where("is_active = true") }
 
   def set_defaults
@@ -29,6 +30,11 @@ class Alumn < ApplicationRecord
     self.address = address.downcase if address.present?
     self.phone_number = phone_number.downcase if phone_number.present?
     self.email = email.downcase if email.present?
+  end
+
+  def email_or_phone_number_present
+    return if email.present? || phone_number.present?
+    errors.add(:base, "Debe proporcionar al menos un email o un número de teléfono")
   end
 
   ransacker :full_name, formatter: proc { |v| v.downcase } do |parent|

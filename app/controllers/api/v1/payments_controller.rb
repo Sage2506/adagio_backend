@@ -104,7 +104,7 @@ class Api::V1::PaymentsController < ApplicationController
       attributes = { paid_amount: total_paid, last_payment_date: @payment.paid_at || Date.today }
 
       if total_paid >= subscription.effective_price
-        attributes[:due_date] = subscription.due_date + 1.month
+        attributes[:due_date] = next_due_date_for(subscription.due_date)
         attributes[:paid_amount] = total_paid - subscription.effective_price
       end
 
@@ -132,6 +132,10 @@ class Api::V1::PaymentsController < ApplicationController
       response[:remaining_balance] = record.remaining_balance if record.is_a?(Order)
 
       render json: response, status: :unprocessable_entity
+    end
+
+    def next_due_date_for(due_date)
+      due_date.day > 28 ? due_date.next_month.beginning_of_month : due_date + 1.month
     end
 
     # Use callbacks to share common setup or constraints between actions.

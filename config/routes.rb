@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       resources :subscriptions do
         member do
           put :rehabilitate
+          post :add_credit
         end
       end
       resources :user_disciplines

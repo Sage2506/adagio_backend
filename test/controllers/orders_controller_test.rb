@@ -124,7 +124,7 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_equal 40, record["paid_amount"]
     assert_equal 60, record["remaining_balance"]
     assert_equal @alumn.id, record.dig("alumn", "id")
-    assert body.key?("count")
+    assert body.key?("total")
     assert body.key?("links")
     assert body.key?("pages")
   end

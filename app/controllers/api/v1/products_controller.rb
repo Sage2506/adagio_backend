@@ -10,7 +10,8 @@ class Api::V1::ProductsController < ApplicationController
     render json: {
       data: records,
       links: pagy.urls_hash,
-      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i }
+      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i },
+      total: pagy.count
     }
   end
 

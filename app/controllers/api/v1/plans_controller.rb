@@ -6,8 +6,14 @@ class Api::V1::PlansController < ApplicationController
   # GET /plans
   def index
     @q = Plan.active.ransack(params[:q])
-    pagy, records = pagy(:offset, @q.result(distinct: true))
-    render json: { data: records, links: pagy.urls_hash, pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i } }
+    current_limit = params[:limit].presence || Pagy::OPTIONS[:limit]
+    pagy, records = pagy(:offset, @q.result(distinct: true), limit: current_limit)
+    render json: {
+      data: records,
+      links: pagy.urls_hash,
+      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i },
+      total: pagy.count
+    }
   end
 
   # GET /plans/1
