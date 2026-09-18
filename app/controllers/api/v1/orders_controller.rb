@@ -11,9 +11,9 @@ class Api::V1::OrdersController < ApplicationController
     pagy, records = pagy(:offset, scope.order(created_at: :desc))
     render json: {
       data: records.map { |order| serialize_order(order) },
-      count: scope.count,
       links: pagy.urls_hash,
-      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i }
+      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i },
+      total: pagy.count
     }
   end
 

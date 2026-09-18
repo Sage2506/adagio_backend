@@ -15,9 +15,9 @@ class Api::V1::SubscriptionsController < ApplicationController
 
     render json: {
       data: records.as_json(include: [ :alumn, :plan ]),
-      count: @q.result(distinct: true).count,
       links: pagy.urls_hash,
-      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i }
+      pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i },
+      total: pagy.count
     }
   end
 
@@ -50,6 +50,33 @@ class Api::V1::SubscriptionsController < ApplicationController
     @subscription.disable
   end
 
+  def add_credit
+    @subscription = Subscription.find(params[:id])
+    credit_amount = params[:amount].to_f
+
+    if credit_amount <= 0
+      return render json: { error: "El monto del crédito debe ser mayor a 0" }, status: :unprocessable_entity
+    end
+
+    # Sumamos el saldo promocional al saldo a favor existente
+    new_paid_amount = @subscription.paid_amount + credit_amount
+    attributes = { paid_amount: new_paid_amount }
+
+    if new_paid_amount >= @subscription.effective_price
+      attributes[:due_date] = next_due_date_for(@subscription.due_date)
+      attributes[:paid_amount] = new_paid_amount - @subscription.effective_price
+    end
+
+    if @subscription.update(attributes)
+      render json: {
+        message: "Crédito de $#{credit_amount} aplicado promoción",
+        subscription: @subscription
+      }, status: :ok
+    else
+      render json: { errors: @subscription.errors.to_hash(true) }, status: :unprocessable_entity
+    end
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_subscription
@@ -68,5 +95,9 @@ class Api::V1::SubscriptionsController < ApplicationController
     else
       Subscription.active
     end
+  end
+
+  def next_due_date_for(due_date)
+    due_date.day > 28 ? due_date.next_month.beginning_of_month : due_date + 1.month
   end
 end

@@ -43,6 +43,7 @@ class Api::V1::AlumnsControllerTest < ActionDispatch::IntegrationTest
           name: "Elena",
           last_name: "Lopez",
           birth_date: "2017-07-07",
+          email: "elena.lopez@example.com",
           subscription_attributes: {
             plan_id: plan.id,
             subscribed_at: "2026-08-07"
@@ -63,6 +64,7 @@ class Api::V1::AlumnsControllerTest < ActionDispatch::IntegrationTest
           name: "Elena",
           last_name: "Lopez",
           birth_date: "2017-07-07",
+          phone_number: "+5491123456789",
           subscription_attributes: {
             plan_id: plan.id,
             subscribed_at: "2026-08-08"
@@ -83,6 +85,7 @@ class Api::V1::AlumnsControllerTest < ActionDispatch::IntegrationTest
           name: "Elena",
           last_name: "Lopez",
           birth_date: "2017-07-07",
+          email: "elena.22@example.com",
           subscription_attributes: {
             plan_id: plan.id,
             subscribed_at: "2026-08-22"

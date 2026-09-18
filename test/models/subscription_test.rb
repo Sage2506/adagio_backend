@@ -37,6 +37,11 @@ class SubscriptionTest < ActiveSupport::TestCase
     assert_equal Date.new(2025, 8, 1), subscription.calculate_due_date
   end
 
+  test "day 31 in January uses the next month boundary correctly when the month has 31 days" do
+    subscription = subscription_with(day: 31, month: 1)
+    assert_equal Date.new(2025, 2, 1), subscription.calculate_due_date
+  end
+
   test "handles year rollover for the 1-7 range" do
     subscription = subscription_with(day: 5, month: 12)
     assert_equal Date.new(2025, 12, 1), subscription.calculate_due_date
