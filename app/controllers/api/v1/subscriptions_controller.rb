@@ -77,6 +77,14 @@ class Api::V1::SubscriptionsController < ApplicationController
     end
   end
 
+  def monthly_income
+    total = Subscription.active.includes(:plan).sum do |subscription|
+      subscription.effective_price.to_f
+    end
+
+    render json: { total: total.to_f }
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_subscription
