@@ -26,6 +26,10 @@ Rails.application.routes.draw do
       resources :products
       resources :subscription_payments
       resources :subscriptions do
+        collection do
+          get :monthly_income
+        end
+
         member do
           put :rehabilitate
           post :add_credit
