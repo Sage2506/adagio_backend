@@ -5,7 +5,14 @@ class Api::V1::AlumnsController < ApplicationController
 
   # GET /api/v1/alumns
   def index
-    alumns = Alumn.active
+    alumns = Alumn.active.between_ages(params[:min_age], params[:max_age])
+    discipline_ids = integer_ids(params[:discipline_ids])
+    if discipline_ids.any?
+      alumns = alumns
+        .joins(subscription: { plan: :disciplines })
+        .where(disciplines: { id: discipline_ids })
+        .distinct
+    end
     if params[:birth_month].present?
       month = params[:birth_month].to_i
       alumns = alumns.where("EXTRACT(MONTH FROM birth_date) = ?", month)
@@ -24,7 +31,7 @@ class Api::V1::AlumnsController < ApplicationController
   def show
     alumn = Alumn.includes(:guardians).find(@alumn.id)
     render json: {
-      alumn: alumn.as_json(methods: %i[plan_id subscription_id]),
+      alumn: alumn.as_json(methods: %i[plan_id subscription_id subscription_custom_price]),
       guardians: alumn.guardians.order(created_at: :asc).as_json
     }
   end
@@ -101,6 +108,10 @@ class Api::V1::AlumnsController < ApplicationController
   end
 
   private
+    def integer_ids(values)
+      Array(values).filter_map { |value| Integer(value, exception: false) }.uniq
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_alumn
       @alumn = Alumn.find(params.require(:id))

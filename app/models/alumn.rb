@@ -10,7 +10,19 @@ class Alumn < ApplicationRecord
   before_validation :downcase_all
   before_create :set_defaults
   validate :email_or_phone_number_present
-  scope :active, -> { where("is_active = true") }
+  scope :active, -> { where(alumns: { is_active: true }) }
+  scope :between_ages, ->(minimum_age_param, maximum_age_param) do
+    minimum_age = Integer(minimum_age_param, exception: false)
+    maximum_age = Integer(maximum_age_param, exception: false)
+    minimum_age = nil if minimum_age&.negative?
+    maximum_age = nil if maximum_age&.negative?
+
+    records = all
+    records = records.none if minimum_age && maximum_age && minimum_age > maximum_age
+    records = records.where("alumns.birth_date <= ?", Date.current - minimum_age.years) if minimum_age
+    records = records.where("alumns.birth_date > ?", Date.current - (maximum_age + 1).years) if maximum_age
+    records
+  end
 
   def set_defaults
     self.is_active = true
@@ -22,6 +34,10 @@ class Alumn < ApplicationRecord
 
   def subscription_id
     subscription&.id
+  end
+
+  def subscription_custom_price
+    subscription&.custom_price
   end
 
   def downcase_all

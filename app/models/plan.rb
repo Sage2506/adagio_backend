@@ -1,7 +1,7 @@
 class Plan < ApplicationRecord
   has_many :plan_disciplines
   has_many :lessons, dependent: :destroy
-  has_many :plans, through: :plan_disciplines
+  has_many :disciplines, through: :plan_disciplines
   has_many :subscriptions
   before_create :set_registration_cost_if_blank
 

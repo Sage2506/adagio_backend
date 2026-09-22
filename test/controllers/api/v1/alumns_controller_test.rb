@@ -10,6 +10,31 @@ class Api::V1::AlumnsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "filters alumns by inclusive age range" do
+    included = Alumn.create!(name: "included", last_name: "range", email: "included.range@example.com", birth_date: Date.current - 8.years)
+    excluded = Alumn.create!(name: "excluded", last_name: "range", email: "excluded.range@example.com", birth_date: Date.current - 9.years)
+
+    get "#{api_v1_alumns_url}?min_age=4&max_age=8", as: :json
+
+    assert_response :success
+    response_ids = response.parsed_body.fetch("data").pluck("id")
+    assert_includes response_ids, included.id
+    assert_not_includes response_ids, excluded.id
+  end
+
+  test "filters alumns by any selected discipline" do
+    discipline = disciplines(:one)
+    plan = Plan.create!(name: "Filtered Plan", price: 10, subscription_duration: 30, tolerance_days: 5, is_active: true)
+    plan.disciplines << discipline
+    alumn = Alumn.create!(name: "discipline", last_name: "match", email: "discipline.match@example.com", is_active: true)
+    Subscription.create!(plan: plan, alumn: alumn, status: :active, subscribed_at: Date.current)
+
+    get "#{api_v1_alumns_url}?discipline_ids%5B%5D=#{discipline.id}", as: :json
+
+    assert_response :success
+    assert_includes response.parsed_body.fetch("data").pluck("id"), alumn.id
+  end
+
   test "should create alumn" do
     assert_difference("Alumn.count") do
       post api_v1_alumns_url, params: { alumn: { address: @alumn.address, email: @alumn.email, is_active: @alumn.is_active, last_name: @alumn.last_name, name: @alumn.name, phone_number: @alumn.phone_number } }, as: :json

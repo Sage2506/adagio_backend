@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_19_234315) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_21_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "additional_incomes", force: :cascade do |t|
+    t.decimal "amount", precision: 12, scale: 2
+    t.integer "category"
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.string "description"
+    t.integer "payment_method"
+    t.datetime "updated_at", null: false
+    t.string "user_email"
+  end
 
   create_table "alumn_guardians", force: :cascade do |t|
     t.bigint "alumn_id", null: false
@@ -59,6 +70,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_234315) do
     t.boolean "is_active"
     t.string "name"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "expenses", force: :cascade do |t|
+    t.decimal "amount", precision: 12, scale: 2
+    t.integer "category"
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.string "description"
+    t.integer "payment_method"
+    t.datetime "updated_at", null: false
+    t.string "user_email"
   end
 
   create_table "guardians", force: :cascade do |t|

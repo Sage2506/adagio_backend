@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   match "*path", to: "application#options", via: :options
   namespace :api do
     namespace :v1 do
+      resource :balance, only: [ :show ]
+      resources :additional_incomes, only: [ :index, :create, :destroy ]
       resources :alumn_guardians
       resources :alumns do
         put "associate", on: :member
@@ -15,6 +17,7 @@ Rails.application.routes.draw do
       resources :assistances
       resources :classrooms
       resources :disciplines
+      resources :expenses, only: [ :index, :create, :destroy ]
       resources :guardians do
         put "associate", on: :member
       end

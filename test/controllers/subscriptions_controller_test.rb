@@ -10,6 +10,19 @@ class SubscriptionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "filters subscriptions by any selected discipline" do
+    discipline = disciplines(:one)
+    plan = Plan.create!(name: "Filtered Plan", price: 10, subscription_duration: 30, tolerance_days: 5, is_active: true)
+    plan.disciplines << discipline
+    alumn = Alumn.create!(name: "discipline", last_name: "match", email: "subscription.discipline.match@example.com", is_active: true)
+    subscription = Subscription.create!(plan: plan, alumn: alumn, status: :active, subscribed_at: Date.current)
+
+    get "#{api_v1_subscriptions_url}?discipline_ids%5B%5D=#{discipline.id}", as: :json
+
+    assert_response :success
+    assert_includes response.parsed_body.fetch("data").pluck("id"), subscription.id
+  end
+
   test "should create subscription" do
     assert_difference("Subscription.count") do
       post api_v1_subscriptions_url, params: { subscription: { alumn_id: @subscription.alumn_id, due_date: @subscription.due_date, last_payment_date: @subscription.last_payment_date, plan_id: @subscription.plan_id, status: @subscription.status } }, as: :json
@@ -26,6 +39,22 @@ class SubscriptionsControllerTest < ActionDispatch::IntegrationTest
   test "should update subscription" do
     patch api_v1_subscription_url(@subscription), params: { subscription: { alumn_id: @subscription.alumn_id, due_date: @subscription.due_date, last_payment_date: @subscription.last_payment_date, plan_id: @subscription.plan_id, status: @subscription.status } }, as: :json
     assert_response :success
+  end
+
+  test "updates and clears a custom price" do
+    @subscription.update!(custom_price: 125.0)
+
+    patch api_v1_subscription_url(@subscription), params: {
+      subscription: {
+        alumn_id: @subscription.alumn_id,
+        plan_id: @subscription.plan_id,
+        custom_price: nil
+      }
+    }, as: :json
+
+    assert_response :success
+    assert_nil @subscription.reload.custom_price
+    assert_equal @subscription.plan.price, @subscription.effective_price
   end
 
   test "should destroy subscription" do

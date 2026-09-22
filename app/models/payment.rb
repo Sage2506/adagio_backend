@@ -1,13 +1,7 @@
 class Payment < ApplicationRecord
   belongs_to :alumn
 
-  enum :payment_method, {
-    cash: 0,        # Efectivo (default)
-    transfer: 1,    # Transferencia bancaria
-    card: 2,        # Tarjeta de crédito/débito (presencial)
-    mp: 3,          # Mercado Pago (online)
-    link: 4         # Link de pago (Mercado Pago)
-  }
+  enum :payment_method, { cash: 0, transfer: 1, card: 2 }
 
   has_one :subscription_payment, dependent: :destroy
   has_one :subscription, through: :subscription_payment
@@ -21,7 +15,7 @@ class Payment < ApplicationRecord
   before_validation :set_default_payment_method, on: :create
   scope :by_method, ->(method) { where(payment_method: payment_methods[method]) if method.present? }
   scope :cash_payments, -> { where(payment_method: :cash) }
-  scope :online_payments, -> { where(payment_method: [ :mp, :link, :card ]) }
+  scope :online_payments, -> { where(payment_method: [ :transfer, :card ]) }
   scope :pending, -> { where(paid_at: nil) }
   scope :completed, -> { where.not(paid_at: nil) }
 
@@ -31,7 +25,7 @@ class Payment < ApplicationRecord
 
   # ===== MÉTODOS DE INSTANCIA =====
   def online_payment?
-    mp? || link? || card?
+    transfer? || card?
   end
 
   def cash_payment?
