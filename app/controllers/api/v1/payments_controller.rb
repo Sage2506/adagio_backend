@@ -31,7 +31,8 @@ class Api::V1::PaymentsController < ApplicationController
     end
     # Apply ransack search and pagination
     @q = @payments.ransack(params[:q])
-    pagy, records = pagy(:offset, @q.result(distinct: true))
+    ordered_payments = @q.result(distinct: true).order(Arel.sql("paid_at DESC NULLS LAST"), created_at: :desc, id: :desc)
+    pagy, records = pagy(:offset, ordered_payments)
 
     render json: {
       data: records,

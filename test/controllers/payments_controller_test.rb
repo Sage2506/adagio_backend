@@ -10,6 +10,17 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index returns the most recent payments first" do
+    older_payment = Payment.create!(alumn_id: @payment.alumn_id, quantity: 1, paid_at: 2.days.ago)
+    newer_payment = Payment.create!(alumn_id: @payment.alumn_id, quantity: 1, paid_at: 1.day.ago)
+
+    get api_v1_payments_url, as: :json
+
+    assert_response :success
+    payment_ids = response.parsed_body.fetch("data").pluck("id")
+    assert_operator payment_ids.index(newer_payment.id), :<, payment_ids.index(older_payment.id)
+  end
+
   test "should create payment" do
     assert_difference("Payment.count") do
       post api_v1_payments_url, params: { payment: { alumn_id: @payment.alumn_id, quantity: @payment.quantity }, payable_type: "subscription", payable_id: subscriptions(:two).id }, as: :json
