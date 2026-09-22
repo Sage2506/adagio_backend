@@ -53,6 +53,7 @@ class Api::V1::PaymentsController < ApplicationController
     ActiveRecord::Base.transaction do
       @payment.save!
       link_payment_to_payable! if params[:payable_type].present?
+      deduct_mercadopago_commission! if @payment.card?
     end
 
     render json: @payment, status: :created
@@ -115,6 +116,19 @@ class Api::V1::PaymentsController < ApplicationController
       order.register_payment!(@payment)
     end
 
+    def deduct_mercadopago_commission!
+      commission = (@payment.quantity * 0.0406).round(2)
+
+      Expense.create!(
+        amount: commission,
+        category: :commission,
+        payment_method: :card,
+        date: @payment.paid_at&.to_date || Date.today,
+        description: "Comisión MercadoPago (Ref: #{@payment.reference || 'N/A'})",
+        user_email: @payment.user_email
+      )
+    end
+
     def valid_payable_type?(type)
       %w[subscription order].include?(type.to_s.downcase)
     end
@@ -145,6 +159,6 @@ class Api::V1::PaymentsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def payment_params
-      params.require(:payment).permit(:alumn_id, :quantity, :created_at, :paid_at, :payment_method)
+      params.require(:payment).permit(:alumn_id, :quantity, :created_at, :paid_at, :payment_method, :reference)
     end
 end

@@ -4,7 +4,17 @@ class Api::V1::SubscriptionsController < ApplicationController
   before_action :set_subscription, only: %i[ show update destroy ]
   # GET /subscriptions
   def index
-    base_scope = subscriptions_base_scope.includes(:alumn, :plan)
+    base_scope = subscriptions_base_scope
+      .joins(:alumn)
+      .merge(Alumn.between_ages(params[:min_age], params[:max_age]))
+      .includes(:alumn, :plan)
+    discipline_ids = integer_ids(params[:discipline_ids])
+    if discipline_ids.any?
+      base_scope = base_scope
+        .joins(plan: :disciplines)
+        .where(disciplines: { id: discipline_ids })
+        .distinct
+    end
     @q = if params[:full_name].present?
       base_scope.ransack(alumn_full_name_cont: params[:full_name].downcase)
     else
@@ -86,6 +96,10 @@ class Api::V1::SubscriptionsController < ApplicationController
   end
 
   private
+  def integer_ids(values)
+    Array(values).filter_map { |value| Integer(value, exception: false) }.uniq
+  end
+
   # Use callbacks to share common setup or constraints between actions.
   def set_subscription
     @subscription = Subscription.find(params.require(:id))

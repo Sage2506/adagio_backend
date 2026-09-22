@@ -14,14 +14,14 @@ class Api::V1::DisciplinesController < ApplicationController
 
   # GET /disciplines
   def index
-    @disciplines = Discipline.includes(:plan_disciplines, :user_disciplines).all
-    render json: { data: @disciplines.as_json(include: [ :plan_disciplines, :user_disciplines ]) }
+    disciplines = Discipline.includes(:plan_disciplines, :user_disciplines).order(:name)
+    render json: { data: disciplines.as_json(include: [ :plan_disciplines, :user_disciplines ]) }, status: :ok
   end
 
   # GET /disciplines/1
   def show
     discipline = Discipline.includes(:plan_disciplines, :user_disciplines).find(@discipline.id)
-    render json: { data: discipline.as_json(include: [ :plan_disciplines, :user_disciplines ]) }
+    render json: { data: discipline.as_json(include: [ :plan_disciplines, :user_disciplines ]) }, status: :ok
   end
 
   # POST /disciplines
@@ -46,7 +46,13 @@ class Api::V1::DisciplinesController < ApplicationController
 
   # DELETE /disciplines/1
   def destroy
-    @discipline.destroy!
+    if @discipline.destroy
+      head :no_content
+    else
+      render json: { errors: @discipline.errors }, status: :unprocessable_entity
+    end
+  rescue ActiveRecord::RecordNotDestroyed => error
+    render json: { errors: [ error.message ] }, status: :unprocessable_entity
   end
 
   private

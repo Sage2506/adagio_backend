@@ -18,14 +18,14 @@ class Api::V1::PlansController < ApplicationController
 
   # GET /plans/1
   def show
-    render json: @plan
+    render json: @plan.as_json(include: :disciplines)
   end
 
   # POST /plans
   def create
-    @plan = Plan.new(plan_params)
-    if @plan.save
-      render json: @plan, status: :created
+    @plan = Plan.new
+    if save_with_disciplines
+      render json: @plan.as_json(include: :disciplines), status: :created
     else
       render json: @plan.errors, status: :unprocessable_entity
     end
@@ -33,8 +33,8 @@ class Api::V1::PlansController < ApplicationController
 
   # PATCH/PUT /plans/1
   def update
-    if @plan.update(plan_params)
-      render json: @plan
+    if save_with_disciplines
+      render json: @plan.as_json(include: :disciplines)
     else
       render json: @plan.errors, status: :unprocessable_entity
     end
@@ -58,6 +58,25 @@ class Api::V1::PlansController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def plan_params
-      params.require(:plan).permit(:name, :price, :subscription_duration, :tolerance_days)
+        params.require(:plan).permit(:name, :price, :subscription_duration, :tolerance_days, discipline_ids: [])
+    end
+
+    def save_with_disciplines
+      attributes = plan_params
+      discipline_ids = attributes.delete(:discipline_ids).to_a.reject(&:blank?).map(&:to_i).uniq
+      if discipline_ids.empty?
+        @plan.errors.add(:discipline_ids, "must include at least one discipline")
+        return false
+      end
+
+      Plan.transaction do
+        @plan.assign_attributes(attributes)
+        @plan.save!
+        @plan.discipline_ids = discipline_ids
+      end
+      true
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => error
+      @plan.errors.add(:base, error.message) if @plan.errors.empty?
+      false
     end
 end
