@@ -5,7 +5,7 @@ class Api::V1::ProductsController < ApplicationController
 
   # GET /api/v1/products
   def index
-    @q = Product.ransack(params[:q])
+    @q = Product.active.ransack(params[:q])
     pagy, records = pagy(:offset, @q.result(distinct: true))
     render json: {
       data: records,
@@ -42,7 +42,12 @@ class Api::V1::ProductsController < ApplicationController
 
   # DELETE /api/v1/products/1
   def destroy
-    @product.destroy!
+    @product.is_active = false
+    if @product.save
+      render json: { successful: true }, status: :ok
+    else
+      render json: { errors: @product.errors }, status: :unprocessable_entity
+    end
   end
 
   private
