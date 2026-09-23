@@ -10,6 +10,22 @@ class SubscriptionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "exports all filtered subscriptions as an Excel file with full names" do
+    exported_alumn = Alumn.create!(name: "Exported", last_name: "Subscriber", email: "exported.subscriber@example.com", is_active: true)
+    plan = plans(:one)
+    exported_subscription = Subscription.create!(alumn: exported_alumn, plan: plan, status: :active, subscribed_at: Date.current)
+
+    get "#{api_v1_subscriptions_url}?export=excel", as: :json
+
+    assert_response :success
+    assert_equal "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.media_type
+    assert_includes response.headers["Content-Disposition"], "filename=\"subscriptions.xlsx\""
+    assert_includes response.body, "PK"
+  ensure
+    exported_subscription&.destroy!
+    exported_alumn&.destroy!
+  end
+
   test "filters subscriptions by any selected discipline" do
     discipline = disciplines(:one)
     plan = Plan.create!(name: "Filtered Plan", price: 10, subscription_duration: 30, tolerance_days: 5, is_active: true)

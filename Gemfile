@@ -16,6 +16,7 @@ gem "thruster", require: false
 gem "rack-cors"
 gem "pagy", "~> 43.6"
 gem "ransack"
+gem "fast_excel"
 gem "minitest-mock"
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
