@@ -1,5 +1,6 @@
 class Api::V1::SubscriptionsController < ApplicationController
   include Pagy::Method
+  require "fast_excel"
   before_action :authenticate_request!
   before_action :set_subscription, only: %i[ show update destroy ]
   # GET /subscriptions
@@ -21,7 +22,12 @@ class Api::V1::SubscriptionsController < ApplicationController
       base_scope.ransack(params[:q])
     end
 
-    pagy, records = pagy(:offset, @q.result(distinct: true).order(status: :asc, due_date: :asc))
+    records_scope = @q.result(distinct: true).order(status: :asc, due_date: :asc)
+    if params[:export].to_s == "excel"
+      return render_subscriptions_excel(records_scope)
+    end
+
+    pagy, records = pagy(:offset, records_scope)
 
     render json: {
       data: records.as_json(include: [ :alumn, :plan ]),
@@ -96,6 +102,21 @@ class Api::V1::SubscriptionsController < ApplicationController
   end
 
   private
+  def render_subscriptions_excel(subscriptions)
+    workbook = FastExcel.open(constant_memory: true)
+    worksheet = workbook.add_worksheet("Subscriptions")
+    worksheet.append_row([ "Full Name" ], workbook.bold_format)
+    subscriptions.each do |subscription|
+      worksheet.append_row([ [ subscription.alumn.name, subscription.alumn.last_name ].compact.join(" ") ])
+    end
+    workbook.close
+
+    send_data workbook.read_string,
+      filename: "subscriptions.xlsx",
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      disposition: "attachment"
+  end
+
   def integer_ids(values)
     Array(values).filter_map { |value| Integer(value, exception: false) }.uniq
   end

@@ -10,6 +10,19 @@ class Api::V1::AlumnsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "exports all filtered alumns as an Excel file with full names" do
+    exported_alumn = Alumn.create!(name: "Exported", last_name: "Student", email: "exported.student@example.com", is_active: true)
+
+    get "#{api_v1_alumns_url}?export=excel", as: :json
+
+    assert_response :success
+    assert_equal "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", response.media_type
+    assert_includes response.headers["Content-Disposition"], "filename=\"alumns.xlsx\""
+    assert_includes response.body, "PK"
+  ensure
+    exported_alumn&.destroy!
+  end
+
   test "filters alumns by inclusive age range" do
     included = Alumn.create!(name: "included", last_name: "range", email: "included.range@example.com", birth_date: Date.current - 8.years)
     excluded = Alumn.create!(name: "excluded", last_name: "range", email: "excluded.range@example.com", birth_date: Date.current - 9.years)

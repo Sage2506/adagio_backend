@@ -31,10 +31,21 @@ class Api::V1::ProductsControllerTest < ActionDispatch::IntegrationTest
   test "should destroy product" do
     product = Product.create!(name: "Temp", price: 1.5, description: "Temp")
 
-    assert_difference("Product.count", -1) do
-      delete api_v1_product_url(product), as: :json
-    end
+    delete api_v1_product_url(product), as: :json
 
-    assert_response :no_content
+    assert_response :success
+    assert_not product.reload.is_active
+  end
+
+  test "does not return inactive products in index" do
+    active_product = Product.create!(name: "Active", price: 1.5, description: "Active")
+    inactive_product = Product.create!(name: "Inactive", price: 1.5, description: "Inactive", is_active: false)
+
+    get api_v1_products_url, as: :json
+
+    assert_response :success
+    product_ids = response.parsed_body.fetch("data").pluck("id")
+    assert_includes product_ids, active_product.id
+    assert_not_includes product_ids, inactive_product.id
   end
 end

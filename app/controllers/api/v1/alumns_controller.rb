@@ -1,5 +1,6 @@
 class Api::V1::AlumnsController < ApplicationController
   include Pagy::Method
+  require "fast_excel"
   before_action :authenticate_request!
   before_action :set_alumn, only: %i[ show update destroy associate ]
 
@@ -18,6 +19,10 @@ class Api::V1::AlumnsController < ApplicationController
       alumns = alumns.where("EXTRACT(MONTH FROM birth_date) = ?", month)
     end
     @q = alumns.ransack(params[:q])
+    if params[:export].to_s == "excel"
+      return render_alumns_excel(@q.result(distinct: true))
+    end
+
     pagy, records = pagy(:offset, @q.result(distinct: true))
     render json: {
       data: records,
@@ -108,6 +113,21 @@ class Api::V1::AlumnsController < ApplicationController
   end
 
   private
+    def render_alumns_excel(alumns)
+      workbook = FastExcel.open(constant_memory: true)
+      worksheet = workbook.add_worksheet("Alumns")
+      worksheet.append_row([ "Full Name" ], workbook.bold_format)
+      alumns.order(:last_name, :name).each do |alumn|
+        worksheet.append_row([ [ alumn.name, alumn.last_name ].compact.join(" ") ])
+      end
+      workbook.close
+
+      send_data workbook.read_string,
+        filename: "alumns.xlsx",
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        disposition: "attachment"
+    end
+
     def integer_ids(values)
       Array(values).filter_map { |value| Integer(value, exception: false) }.uniq
     end
