@@ -14,7 +14,7 @@ class Api::V1::DisciplinesController < ApplicationController
 
   # GET /disciplines
   def index
-    disciplines = Discipline.includes(:plan_disciplines, :user_disciplines).order(:name)
+    disciplines = Discipline.active.includes(:plan_disciplines, :user_disciplines).order(:name)
     render json: { data: disciplines.as_json(include: [ :plan_disciplines, :user_disciplines ]) }, status: :ok
   end
 
@@ -46,13 +46,12 @@ class Api::V1::DisciplinesController < ApplicationController
 
   # DELETE /disciplines/1
   def destroy
-    if @discipline.destroy
-      head :no_content
+    @discipline.is_active = false
+    if @discipline.save
+      render json: { successful: true }, status: :ok
     else
       render json: { errors: @discipline.errors }, status: :unprocessable_entity
     end
-  rescue ActiveRecord::RecordNotDestroyed => error
-    render json: { errors: [ error.message ] }, status: :unprocessable_entity
   end
 
   private
