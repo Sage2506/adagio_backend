@@ -1,81 +1,102 @@
-# adagio_backend
+# Adagio Backend
 
-Adagio backend is a Rails API-only service that powers the backoffice platform.
-It handles:
+## Project description
 
-- students and guardians
-- plans, disciplines, classrooms, lessons, attendance
-- subscriptions, payments, orders, products
-- users and token-based authentication
+Adagio Backend is an API-only service for the Adagio backoffice. It provides the
+REST API used to manage students and guardians, classes and attendance, plans
+and subscriptions, payments and orders, products, and staff users. API routes
+are namespaced under `/api/v1`. User authentication is integrated with AWS
+Cognito.
 
-Base API namespace: `/api/v1`
+## Tech stack
 
-## 1) Onboarding Quick Start (10-15 minutes)
+- Ruby 3.4.2 and Rails 8.1.3.1
+- PostgreSQL and Puma
+- AWS Cognito for authentication; JWTs are verified against Cognito JWKS
+- Solid Queue, Solid Cache, and Solid Cable for background jobs, caching, and
+  Action Cable
+- Pagy and Ransack for pagination and filtering
+- Minitest, RuboCop, and Brakeman for tests, style, and security analysis
+- Docker and Kamal configuration for production deployment
 
-Use this if you are joining the project and want a reliable first boot.
+## Run locally
 
-### Prerequisites
+### Requirements
 
-- Ruby `3.4.2`
-- PostgreSQL running locally
+- Ruby 3.4.2 (see `.ruby-version`)
 - Bundler
-- Rails master key available (for credentials)
-- AWS Cognito credentials (required for login/token verification paths)
+- PostgreSQL running locally, with permission to create databases
+- The Rails credentials master key
+- AWS Cognito credentials for login and protected API requests
 
-### Step-by-step
+### Setup and start
 
-1. Install dependencies
+1. Install Ruby 3.4.2 and start PostgreSQL.
+2. From the project root, install the gems:
 
-```bash
-bundle install
-```
+   ```bash
+   bundle install
+   ```
 
-2. Configure Rails credentials
+3. Make Rails credentials available. Obtain the project's master key through
+   the team's approved secret-sharing channel, then either place it in
+   `config/master.key` or export it as `RAILS_MASTER_KEY`. Do not commit or
+   share the key in source control.
+4. Check that the encrypted Rails credentials include these AWS settings:
 
-```bash
-bin/rails credentials:edit
-```
+   ```yaml
+   aws:
+     region: YOUR_AWS_REGION
+     access_key_id: YOUR_AWS_ACCESS_KEY_ID
+     secret_access_key: YOUR_AWS_SECRET_ACCESS_KEY
+     cognito_client_id: YOUR_COGNITO_CLIENT_ID
+     cognito_client_secret: YOUR_COGNITO_CLIENT_SECRET
+     cognito_user_pool_id: YOUR_COGNITO_USER_POOL_ID
+   ```
 
-Add or verify:
+   To edit credentials locally, run `bin/rails credentials:edit`; the master
+   key is required. Never commit plaintext credentials.
+5. Create or update the development database:
 
-```yml
-aws:
-  region: us-east-1
-  access_key_id: YOUR_ACCESS_KEY_ID
-  secret_access_key: YOUR_SECRET_ACCESS_KEY
-  cognito_client_id: YOUR_COGNITO_CLIENT_ID
-  cognito_client_secret: YOUR_COGNITO_CLIENT_SECRET
-  cognito_user_pool_id: YOUR_COGNITO_USER_POOL_ID
-```
+   ```bash
+   bin/rails db:prepare
+   ```
 
-3. Prepare database
+   The database is named `adagio_backend_development` and uses the local
+   PostgreSQL defaults in `config/database.yml`.
+6. Start the API:
+
+   ```bash
+   bin/rails server
+   ```
+
+   The server listens on `http://localhost:3000` by default. Alternatively,
+   `bin/setup` installs dependencies, prepares the database, and starts the
+   development server. Use `bin/setup --skip-server` to prepare everything
+   without starting the server.
+7. Check that Rails is responding:
+
+   ```bash
+   curl --fail http://localhost:3000/up
+   ```
+
+   A successful health check returns HTTP 200. A valid Cognito user and working
+   AWS credentials are needed to test login and protected endpoints.
+
+### Common development commands
 
 ```bash
 bin/rails db:prepare
+bin/rails test
+bin/rubocop
+bin/brakeman
+bin/rails log:clear tmp:clear
 ```
 
-4. Boot the app
+If database setup fails, confirm PostgreSQL is running and that your local
+PostgreSQL role can create the database specified in `config/database.yml`.
 
-```bash
-bin/setup
-```
-
-If you do not want to start the server automatically:
-
-```bash
-bin/setup --skip-server
-bin/rails server
-```
-
-5. Validate health endpoint
-
-```bash
-curl http://localhost:3000/up
-```
-
-Expected result: HTTP 200.
-
-## 2) First-Day Operational Checklist
+## Operational checklist
 
 Run this checklist in order:
 
@@ -83,36 +104,13 @@ Run this checklist in order:
 - [ ] `bin/rails db:prepare` succeeds
 - [ ] `GET /up` returns 200
 - [ ] Can authenticate via `POST /api/v1/auth/login`
-- [ ] Can call one protected endpoint with `Authorization: Bearer <id_token>`
+- [ ] Can call a protected endpoint after logging in with Cognito
 - [ ] `bin/rails test` runs
 - [ ] `bin/rubocop` runs
 
 If any item fails, use the troubleshooting section below.
 
-## 3) Local Development Runbook
-
-### Daily start
-
-```bash
-bin/rails server
-```
-
-### Common commands
-
-```bash
-bin/rails db:prepare
-bin/rails test
-bin/rubocop
-bin/brakeman
-```
-
-### Useful reset commands
-
-```bash
-bin/rails log:clear tmp:clear
-```
-
-## 4) Project Map
+## Project map
 
 - `app/controllers/api/v1`: REST endpoints
 - `app/models`: domain models and associations
@@ -121,16 +119,12 @@ bin/rails log:clear tmp:clear
 - `config/routes.rb`: API routes and custom actions
 - `db/schema.rb`: current database shape
 
-## 5) API Conventions
+## API conventions
 
 ### Authentication
 
 - Public endpoint: `POST /api/v1/auth/login`
-- Most endpoints are protected and require:
-
-```http
-Authorization: Bearer <id_token>
-```
+- Protected endpoints authenticate using the HTTP-only JWT cookie set at login.
 
 Token verification uses Cognito JWKS via the `CognitoAuth` service.
 
@@ -144,9 +138,10 @@ Several resources support:
 ### CORS
 
 CORS is configured in `config/initializers/cors.rb`.
-Allowed origins include local frontend hosts (for example port `5173`) and LAN patterns.
+Allowed origins include local frontend hosts (for example port `5173`) and the
+production frontend origin.
 
-## 6) Main Resources
+## Main resources
 
 Available under `/api/v1`:
 
@@ -159,7 +154,7 @@ Available under `/api/v1`:
 - `orders`
 - `users`, `user_disciplines`
 
-## 7) Data Domains (DB-Level)
+## Data domains
 
 Core tables:
 
@@ -170,33 +165,19 @@ Core tables:
 - `orders`, `order_products`, `order_payments`
 - `users`, `user_disciplines`
 
-## 8) Deployment Notes
+## Deployment notes
 
 - The provided `Dockerfile` targets production usage.
 - This repository includes `kamal` for deployment strategy.
 - Production uses Solid Queue, Solid Cache, and Solid Cable configuration.
 
-Build image:
+## Troubleshooting
 
-```bash
-docker build -t adagio_backend .
-```
+### Authentication errors
 
-Run image example:
-
-```bash
-docker run -d -p 80:80 \
-  -e RAILS_MASTER_KEY=YOUR_MASTER_KEY \
-  --name adagio_backend adagio_backend
-```
-
-## 9) Troubleshooting
-
-### 401 Invalid token
-
-- Verify `Authorization: Bearer <id_token>` header exists
-- Verify Cognito values in Rails credentials
-- Confirm token is issued for the expected user pool/client
+- Verify AWS and Cognito values in Rails credentials
+- Confirm the user and token belong to the configured Cognito user pool/client
+- For protected routes, log in through the API so the JWT cookie is set
 
 ### Database boot errors
 
@@ -209,7 +190,7 @@ docker run -d -p 80:80 \
 - Confirm frontend origin is allowed in `config/initializers/cors.rb`
 - Confirm frontend base URL targets this backend correctly
 
-## 10) Frontend Integration
+## Frontend integration
 
 The React backoffice consumes this API via `VITE_API_BASE_URL`.
 Use a base URL that points to this service and `/api/v1` routes.
