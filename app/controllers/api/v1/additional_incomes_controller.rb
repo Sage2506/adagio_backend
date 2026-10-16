@@ -19,11 +19,14 @@ class Api::V1::AdditionalIncomesController < ApplicationController
     @additional_income = AdditionalIncome.new(additional_income_params)
     @additional_income.user_email = @current_user_email
 
-    if @additional_income.save
-      render json: @additional_income, status: :created
-    else
-      render json: @additional_income.errors, status: :unprocessable_entity
+    ActiveRecord::Base.transaction do
+      @additional_income.save!
+      deduct_mercadopago_commission! if @additional_income.card?
     end
+
+    render json: @additional_income, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: e.record.errors, status: :unprocessable_entity
   end
 
   def destroy
@@ -31,6 +34,19 @@ class Api::V1::AdditionalIncomesController < ApplicationController
   end
 
   private
+    def deduct_mercadopago_commission!
+      commission = (@additional_income.amount * 0.0406).round(2)
+
+      Expense.create!(
+        amount: commission,
+        category: :commission,
+        payment_method: :card,
+        date: @additional_income.date,
+        description: "Comisión MercadoPago (Ingreso adicional)",
+        user_email: @additional_income.user_email
+      )
+    end
+
     def set_additional_income
       @additional_income = AdditionalIncome.find(params.require(:id))
     end
