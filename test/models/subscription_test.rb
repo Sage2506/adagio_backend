@@ -80,6 +80,37 @@ class SubscriptionTest < ActiveSupport::TestCase
     assert_in_delta 1.0, subscription.remaining_balance, 0.001
   end
 
+  test "generates a WhatsApp reminder with the guardian, alumn, and Spanish current month" do
+    subscription = subscriptions(:one)
+    subscription.alumn.update!(name: "ana")
+    subscription.alumn.guardians.first.update!(name: "maría")
+
+    travel_to Date.new(2026, 10, 17) do
+      assert_equal <<~MESSAGE.chomp, subscription.whatsapp_reminder_message
+        ¡Hola, María! Esperamos que estés muy bien.
+        Te escribimos para recordarte que la fecha límite de pago para la mensualidad de Ana del mes de Octubre fue el día 13 (incluyendo los 5 días de gracia).
+        Te pedimos amablemente que nos ayudes regularizando el pago a la brevedad. 📝
+        Nunca negaremos el acceso a las alumnas, pero su puntualidad nos permite mantener la calidad de nuestras clases.
+        ¡Muchas gracias por tu apoyo! 💜
+        Quedamos atentos por si tienes alguna duda.😊
+        Favor de no responder a este mensaje; es un aviso automático.
+      MESSAGE
+    end
+  end
+
+  test "uses the primary guardian for the WhatsApp reminder, falling back to the oldest guardian" do
+    subscription = subscriptions(:one)
+    oldest = subscription.alumn.guardians.first
+    newer = Guardian.create!(name: "nueva", email: "nueva@example.com", created_at: 1.day.from_now)
+    subscription.alumn.guardians << newer
+
+    assert_equal oldest, subscription.reload.whatsapp_reminder_guardian
+
+    subscription.alumn.alumn_guardians.find_by!(guardian_id: newer.id).make_primary!
+
+    assert_equal newer, subscription.reload.whatsapp_reminder_guardian
+  end
+
   test "rejects non-positive custom prices" do
     subscription = Subscription.new(plan: plans(:one), alumn: alumns(:one), custom_price: 0)
 

@@ -18,6 +18,19 @@ class Api::V1::GuardiansControllerTest < ActionDispatch::IntegrationTest
     assert_response :created
   end
 
+  test "creates a guardian as the primary guardian of an alumn" do
+    alumn = alumns(:two)
+    existing_link = alumn.alumn_guardians.find_by!(guardian_id: guardians(:two).id)
+    existing_link.make_primary!
+
+    post api_v1_guardians_url, params: { name: "nuevo", email: "nuevo@example.com", alumn_id: alumn.id, primary: true }, as: :json
+
+    assert_response :created
+    new_guardian_id = response.parsed_body.fetch("id")
+    assert_equal [ new_guardian_id ], alumn.alumn_guardians.where(primary: true).pluck(:guardian_id)
+    assert_not existing_link.reload.primary
+  end
+
   test "should show guardian" do
     get api_v1_guardian_url(@guardian), as: :json
     assert_response :success

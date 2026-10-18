@@ -35,9 +35,12 @@ class Api::V1::AlumnsController < ApplicationController
   # GET /api/v1/alumns/1
   def show
     alumn = Alumn.includes(:guardians).find(@alumn.id)
+    primary_guardian_ids = alumn.alumn_guardians.where(primary: true).pluck(:guardian_id)
     render json: {
       alumn: alumn.as_json(methods: %i[plan_id subscription_id subscription_custom_price]),
-      guardians: alumn.guardians.order(created_at: :asc).as_json
+      guardians: alumn.guardians.order(created_at: :asc).map do |guardian|
+        guardian.as_json.merge("primary" => primary_guardian_ids.include?(guardian.id))
+      end
     }
   end
 
@@ -45,8 +48,9 @@ class Api::V1::AlumnsController < ApplicationController
   def create
     attributes = alumn_params
     guardian_ids = attributes.delete(:guardian_ids)
+    primary = extract_primary_guardian(attributes)
     @alumn = Alumn.new(attributes)
-    if save_with_guardians(guardian_ids)
+    if save_with_guardians(guardian_ids, primary)
       render json: @alumn.as_json(methods: %i[plan_id subscription_id]), status: :created
     else
       render json: @alumn.errors, status: :unprocessable_entity
@@ -57,7 +61,8 @@ class Api::V1::AlumnsController < ApplicationController
   def update
     attributes = alumn_params
     guardian_ids = attributes.delete(:guardian_ids)
-    if update_with_guardians(attributes, guardian_ids)
+    primary = extract_primary_guardian(attributes)
+    if update_with_guardians(attributes, guardian_ids, primary)
       render json: @alumn
     else
       render json: @alumn.errors, status: :unprocessable_entity
@@ -137,10 +142,26 @@ class Api::V1::AlumnsController < ApplicationController
       @alumn = Alumn.find(params.require(:id))
     end
 
-    def save_with_guardians(guardian_ids)
+    # Returns [given, guardian_id]; given is false when the client did not send primary_guardian_id,
+    # so the current primary guardian is left untouched.
+    def extract_primary_guardian(attributes)
+      given = attributes.key?(:primary_guardian_id)
+      [ given, attributes.delete(:primary_guardian_id).presence ]
+    end
+
+    def assign_primary_guardian(primary)
+      given, guardian_id = primary
+      return unless given
+
+      @alumn.alumn_guardians.update_all(primary: false)
+      @alumn.alumn_guardians.find_by!(guardian_id: guardian_id).make_primary! if guardian_id
+    end
+
+    def save_with_guardians(guardian_ids, primary)
       Alumn.transaction do
         @alumn.save!
         @alumn.guardian_ids = guardian_ids if guardian_ids
+        assign_primary_guardian(primary)
       end
       true
     rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => error
@@ -148,10 +169,11 @@ class Api::V1::AlumnsController < ApplicationController
       false
     end
 
-    def update_with_guardians(attributes, guardian_ids)
+    def update_with_guardians(attributes, guardian_ids, primary)
       Alumn.transaction do
         @alumn.update!(attributes)
         @alumn.guardian_ids = guardian_ids if guardian_ids
+        assign_primary_guardian(primary)
       end
       true
     rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => error
@@ -163,7 +185,7 @@ class Api::V1::AlumnsController < ApplicationController
     def alumn_params
       params.require(:alumn).permit(
         :name, :last_name, :address, :phone_number, :email, :is_active, :birth_date,
-        :special_med_conditions, :is_guardian_required_for_leaving, guardian_ids: [],
+        :special_med_conditions, :is_guardian_required_for_leaving, :primary_guardian_id, guardian_ids: [],
         subscription_attributes: [ :plan_id, :subscribed_at, :custom_price ]
       )
     end

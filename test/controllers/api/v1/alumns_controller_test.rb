@@ -61,6 +61,51 @@ class Api::V1::AlumnsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "sets the primary guardian on create" do
+    first_guardian = guardians(:one)
+    second_guardian = guardians(:two)
+
+    post api_v1_alumns_url, params: { alumn: { name: "ana", email: "ana.primary@example.com", guardian_ids: [ first_guardian.id, second_guardian.id ], primary_guardian_id: second_guardian.id } }, as: :json
+
+    assert_response :created
+    alumn = Alumn.find(response.parsed_body.fetch("id"))
+    assert_equal [ second_guardian.id ], alumn.alumn_guardians.where(primary: true).pluck(:guardian_id)
+  end
+
+  test "moves the primary guardian on update and clears it when null is sent" do
+    guardian = guardians(:one)
+    other_guardian = Guardian.create!(name: "otra", email: "otra@example.com")
+    @alumn.guardians << other_guardian
+    link = @alumn.alumn_guardians.find_by!(guardian_id: guardian.id)
+    link.make_primary!
+
+    patch api_v1_alumn_url(@alumn), params: { alumn: { primary_guardian_id: other_guardian.id } }, as: :json
+    assert_response :success
+    assert_equal [ other_guardian.id ], @alumn.alumn_guardians.where(primary: true).pluck(:guardian_id)
+
+    patch api_v1_alumn_url(@alumn), params: { alumn: { name: @alumn.name } }, as: :json
+    assert_equal [ other_guardian.id ], @alumn.alumn_guardians.where(primary: true).pluck(:guardian_id)
+
+    patch api_v1_alumn_url(@alumn), params: { alumn: { primary_guardian_id: nil } }, as: :json
+    assert_response :success
+    assert_empty @alumn.alumn_guardians.where(primary: true)
+  end
+
+  test "rejects a primary guardian not associated with the alumn" do
+    patch api_v1_alumn_url(@alumn), params: { alumn: { primary_guardian_id: guardians(:two).id } }, as: :json
+
+    assert_response :unprocessable_entity
+    assert_empty @alumn.alumn_guardians.where(primary: true)
+  end
+
+  test "returns the primary flag for each guardian when showing an alumn" do
+    @alumn.alumn_guardians.find_by!(guardian_id: guardians(:one).id).make_primary!
+
+    get api_v1_alumn_url(@alumn), as: :json
+
+    assert_equal [ true ], response.parsed_body.fetch("guardians").pluck("primary")
+  end
+
   test "should update alumn" do
     patch api_v1_alumn_url(@alumn), params: { alumn: { address: @alumn.address, email: @alumn.email, is_active: @alumn.is_active, last_name: @alumn.last_name, name: @alumn.name, phone_number: @alumn.phone_number } }, as: :json
     assert_response :success

@@ -8,7 +8,7 @@ class Api::V1::SubscriptionsController < ApplicationController
     base_scope = subscriptions_base_scope
       .joins(:alumn)
       .merge(Alumn.between_ages(params[:min_age], params[:max_age]))
-      .includes(:alumn, :plan)
+      .includes(:plan, alumn: [ :guardians, :alumn_guardians ])
     discipline_ids = integer_ids(params[:discipline_ids])
     if discipline_ids.any?
       base_scope = base_scope
@@ -30,7 +30,12 @@ class Api::V1::SubscriptionsController < ApplicationController
     pagy, records = pagy(:offset, records_scope)
 
     render json: {
-      data: records.as_json(include: [ :alumn, :plan ]),
+      data: records.map do |subscription|
+        subscription.as_json(include: [ :alumn, :plan ]).merge(
+          whatsapp_reminder_message: subscription.whatsapp_reminder_message,
+          guardian_phone_number: subscription.whatsapp_reminder_guardian&.phone_number
+        )
+      end,
       links: pagy.urls_hash,
       pages: pagy.data_hash(data_keys: [ :series ])[:series].map { |item| item == :gap ? item : item.to_i },
       total: pagy.count

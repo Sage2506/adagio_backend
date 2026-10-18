@@ -1,4 +1,9 @@
 class Subscription < ApplicationRecord
+  SPANISH_MONTHS = %w[
+    enero febrero marzo abril mayo junio
+    julio agosto septiembre octubre noviembre diciembre
+  ].freeze
+
   belongs_to :plan
   belongs_to :alumn
   has_many :subscription_payments
@@ -37,6 +42,28 @@ class Subscription < ApplicationRecord
 
   def payment_percentage
     (paid_amount / effective_price * 100).round(2)
+  end
+
+  def whatsapp_reminder_message
+    guardian_first_name = whatsapp_reminder_guardian&.name.to_s.split.first.to_s.capitalize
+    alumn_first_name = alumn.name.to_s.split.first.to_s.capitalize
+    current_month = SPANISH_MONTHS[Date.current.month - 1]
+
+    <<~MESSAGE.chomp
+      ¡Hola, #{guardian_first_name}! Esperamos que estés muy bien.
+      Te escribimos para recordarte que la fecha límite de pago para la mensualidad de #{alumn_first_name} del mes de #{current_month.capitalize} fue el día #{due_date.mday + 4} (incluyendo los 5 días de gracia).
+      Te pedimos amablemente que nos ayudes regularizando el pago a la brevedad. 📝
+      Nunca negaremos el acceso a las alumnas, pero su puntualidad nos permite mantener la calidad de nuestras clases.
+      ¡Muchas gracias por tu apoyo! 💜
+      Quedamos atentos por si tienes alguna duda.😊
+      Favor de no responder a este mensaje; es un aviso automático.
+    MESSAGE
+  end
+
+  def whatsapp_reminder_guardian
+    primary_guardian_id = alumn.alumn_guardians.find(&:primary?)&.guardian_id
+    guardians = alumn.guardians.to_a
+    guardians.find { |guardian| guardian.id == primary_guardian_id } || guardians.min_by(&:created_at)
   end
 
   def effective_price
