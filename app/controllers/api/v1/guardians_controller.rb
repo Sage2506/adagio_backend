@@ -41,7 +41,11 @@ class Api::V1::GuardiansController < ApplicationController
 
     if @guardian.save
       if params[:alumn_id].present?
-        @guardian.alumns << Alumn.find(params[:alumn_id])
+        alumn = Alumn.find(params[:alumn_id])
+        @guardian.alumns << alumn
+        if ActiveModel::Type::Boolean.new.cast(params[:primary])
+          @guardian.alumn_guardians.find_by!(alumn_id: alumn.id).make_primary!
+        end
       end
       render json: @guardian, status: :created
     else

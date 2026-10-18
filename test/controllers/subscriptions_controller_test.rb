@@ -10,6 +10,18 @@ class SubscriptionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "includes WhatsApp reminder and oldest guardian phone in subscription index" do
+    @subscription.update!(status: :active)
+    @subscription.alumn.guardians.first.update!(phone_number: "+5491123456789")
+
+    get api_v1_subscriptions_url, as: :json
+
+    assert_response :success
+    subscription_json = response.parsed_body.fetch("data").find { |item| item.fetch("id") == @subscription.id }
+    assert_equal @subscription.whatsapp_reminder_message, subscription_json.fetch("whatsapp_reminder_message")
+    assert_equal "+5491123456789", subscription_json.fetch("guardian_phone_number")
+  end
+
   test "exports all filtered subscriptions as an Excel file with full names" do
     exported_alumn = Alumn.create!(name: "Exported", last_name: "Subscriber", email: "exported.subscriber@example.com", is_active: true)
     plan = plans(:one)
