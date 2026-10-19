@@ -80,7 +80,7 @@ class SubscriptionTest < ActiveSupport::TestCase
     assert_in_delta 1.0, subscription.remaining_balance, 0.001
   end
 
-  test "generates a WhatsApp reminder with the guardian, alumn, and Spanish current month" do
+  test "uses past-tense wording in a WhatsApp reminder when the due date has passed" do
     subscription = subscriptions(:one)
     subscription.alumn.update!(name: "ana")
     subscription.alumn.guardians.first.update!(name: "maría")
@@ -95,6 +95,15 @@ class SubscriptionTest < ActiveSupport::TestCase
         Quedamos atentos por si tienes alguna duda.😊
         Favor de no responder a este mensaje; es un aviso automático.
       MESSAGE
+    end
+  end
+
+  test "uses present-tense wording in a WhatsApp reminder when the due date is today" do
+    subscription = subscriptions(:one)
+    subscription.due_date = Date.new(2026, 10, 17)
+
+    travel_to Date.new(2026, 10, 17) do
+      assert_includes subscription.whatsapp_reminder_message, "es el día"
     end
   end
 

@@ -48,10 +48,11 @@ class Subscription < ApplicationRecord
     guardian_first_name = whatsapp_reminder_guardian&.name.to_s.split.first.to_s.capitalize
     alumn_first_name = alumn.name.to_s.split.first.to_s.capitalize
     current_month = SPANISH_MONTHS[Date.current.month - 1]
+    due_date_wording = due_date < Date.current ? "fue" : "es"
 
     <<~MESSAGE.chomp
       ¡Hola, #{guardian_first_name}! Esperamos que estés muy bien.
-      Te escribimos para recordarte que la fecha límite de pago para la mensualidad de #{alumn_first_name} del mes de #{current_month.capitalize} es el día #{due_date.mday + 4} (incluyendo los 5 días de gracia).
+      Te escribimos para recordarte que la fecha límite de pago para la mensualidad de #{alumn_first_name} del mes de #{current_month.capitalize} #{due_date_wording} el día #{due_date.mday + 4} (incluyendo los 5 días de gracia).
       Te pedimos amablemente que nos ayudes regularizando el pago a la brevedad. 📝
       Nunca negaremos el acceso a las alumnas, pero su puntualidad nos permite mantener la calidad de nuestras clases.
       ¡Muchas gracias por tu apoyo! 💜
