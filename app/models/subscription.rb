@@ -48,7 +48,7 @@ class Subscription < ApplicationRecord
     guardian_first_name = whatsapp_reminder_guardian&.name.to_s.split.first.to_s.capitalize
     alumn_first_name = alumn.name.to_s.split.first.to_s.capitalize
     current_month = SPANISH_MONTHS[Date.current.month - 1]
-    due_date_wording = due_date < Date.current ? "fue" : "es"
+    due_date_wording = due_date + 4 < Date.current ? "fue" : "es"
 
     <<~MESSAGE.chomp
       ¡Hola, #{guardian_first_name}! Esperamos que estés muy bien.
