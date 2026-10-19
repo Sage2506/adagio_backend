@@ -51,7 +51,7 @@ class Subscription < ApplicationRecord
 
     <<~MESSAGE.chomp
       ¡Hola, #{guardian_first_name}! Esperamos que estés muy bien.
-      Te escribimos para recordarte que la fecha límite de pago para la mensualidad de #{alumn_first_name} del mes de #{current_month.capitalize} fue el día #{due_date.mday + 4} (incluyendo los 5 días de gracia).
+      Te escribimos para recordarte que la fecha límite de pago para la mensualidad de #{alumn_first_name} del mes de #{current_month.capitalize} es el día #{due_date.mday + 4} (incluyendo los 5 días de gracia).
       Te pedimos amablemente que nos ayudes regularizando el pago a la brevedad. 📝
       Nunca negaremos el acceso a las alumnas, pero su puntualidad nos permite mantener la calidad de nuestras clases.
       ¡Muchas gracias por tu apoyo! 💜
