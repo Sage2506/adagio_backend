@@ -5,7 +5,7 @@ class Api::V1::ExpensesController < ApplicationController
 
   def index
     @q = Expense.ransack(params[:q])
-    pagy, records = pagy(:offset, @q.result(distinct: true))
+    pagy, records = pagy(:offset, @q.result(distinct: true).reorder(created_at: :desc))
 
     render json: {
       data: records,
