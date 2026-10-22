@@ -5,6 +5,7 @@ class Order < ApplicationRecord
   has_many :order_payments, dependent: :restrict_with_error
   has_many :payments, through: :order_payments
   enum :status, %w[pending partial paid]
+  scope :active, -> { where(is_active: true) }
 
   validates :total, numericality: { greater_than: 0 }
   validates :paid_amount, numericality: { greater_than_or_equal_to: 0 }

@@ -129,6 +129,21 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
     assert body.key?("pages")
   end
 
+  test "soft deletes an order and excludes it from the list" do
+    order = Order.create!(alumn: @alumn, total: 100)
+
+    delete_order(order)
+
+    assert_response :success
+    assert_equal({ "successful" => true }, response.parsed_body)
+    assert_not order.reload.is_active
+
+    get_orders
+
+    assert_response :success
+    assert_not response.parsed_body.fetch("data").any? { |record| record["id"] == order.id }
+  end
+
   test "shows product lines and payment history" do
     order = Order.create!(alumn: @alumn, total: @first_product.price * 2)
     order.order_products.create!(product: @first_product, quantity: 2, price: @first_product.price)
@@ -185,6 +200,13 @@ class Api::V1::OrdersControllerTest < ActionDispatch::IntegrationTest
     CognitoAuth.stub :verify_token, [ { "email" => "tester@example.com" } ] do
       get api_v1_order_url(order),
         headers: { "Authorization" => "Bearer fake" }
+    end
+  end
+
+  def delete_order(order)
+    CognitoAuth.stub :verify_token, [ { "email" => "tester@example.com" } ] do
+      delete api_v1_order_url(order),
+        headers: { "Authorization" => "******" }
     end
   end
 

@@ -53,12 +53,16 @@ class Api::V1::OrdersController < ApplicationController
 
   # DELETE /orders/1
   def destroy
-    @order.destroy!
+    if @order.update_attribute(:is_active, false)
+      render json: { successful: true }, status: :ok
+    else
+      render json: { errors: @order.errors }, status: :unprocessable_entity
+    end
   end
 
   private
     def filtered_orders_scope
-      scope = Order.includes(:alumn)
+      scope = Order.active.includes(:alumn)
 
       if params[:status].present?
         unless Order.statuses.key?(params[:status])
