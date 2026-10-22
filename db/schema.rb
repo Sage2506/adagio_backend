@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_17_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_22_162000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -139,6 +139,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_000000) do
     t.bigint "alumn_id", null: false
     t.datetime "created_at", null: false
     t.string "description"
+    t.boolean "is_active", default: true, null: false
     t.decimal "paid_amount", precision: 12, scale: 2, default: "0.0", null: false
     t.integer "status", default: 0, null: false
     t.decimal "total", precision: 12, scale: 2, null: false
@@ -150,7 +151,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_000000) do
     t.check_constraint "status = ANY (ARRAY[0, 1, 2])", name: "orders_status_valid"
   end
 
-  add_check_constraint "orders", "total > 0::numeric", name: "orders_total_positive", validate: false
+  add_check_constraint "orders", "is_active = false OR total > 0::numeric", name: "orders_total_positive", validate: false
 
   create_table "payments", force: :cascade do |t|
     t.bigint "alumn_id", null: false
