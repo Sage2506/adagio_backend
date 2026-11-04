@@ -4,7 +4,7 @@ gem "rails", "~> 8.1.3"
 gem "puma", ">= 5.0"
 gem "bcrypt", "~> 3.1.22"
 gem "jwt"
-gem "aws-sdk-cognitoidentityprovider", "~> 1.151"
+gem "aws-sdk-cognitoidentityprovider", "~> 1.153"
 gem "httparty"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
