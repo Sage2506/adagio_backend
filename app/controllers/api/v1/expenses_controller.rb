@@ -18,6 +18,7 @@ class Api::V1::ExpensesController < ApplicationController
   def create
     @expense = Expense.new(expense_params)
     @expense.user_email = @current_user_email
+    @expense.date = Date.current if @expense.date.blank?
 
     if @expense.save
       render json: @expense, status: :created

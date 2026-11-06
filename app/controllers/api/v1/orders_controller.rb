@@ -156,13 +156,35 @@ class Api::V1::OrdersController < ApplicationController
 
       invalidate_order!(:paid_amount, "must be greater than or equal to zero") if amount.negative?
 
+      payment_method = advance_payment_method
       payment = Payment.create!(
         alumn_id: @order.alumn_id,
         quantity: amount,
-        payment_method: :cash,
+        payment_method: payment_method,
+        reference: (params.dig(:order, :reference).presence if payment_method != "cash"),
         user_email: @current_user_email
       )
       @order.register_payment!(payment)
+      deduct_mercadopago_commission!(payment) if payment.card?
+    end
+
+    def advance_payment_method
+      method = params.dig(:order, :payment_method).presence || "cash"
+      unless Payment.payment_methods.key?(method.to_s)
+        invalidate_order!(:payment_method, "must be cash, transfer, or card")
+      end
+      method.to_s
+    end
+
+    def deduct_mercadopago_commission!(payment)
+      Expense.create!(
+        amount: (payment.quantity * 0.0406).round(2),
+        category: :commission,
+        payment_method: :card,
+        date: payment.paid_at&.to_date || Date.today,
+        description: "Comisión MercadoPago (Ref: #{payment.reference || 'N/A'})",
+        user_email: payment.user_email
+      )
     end
 
     def advance_amount
