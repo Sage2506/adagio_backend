@@ -18,6 +18,7 @@ class Api::V1::AdditionalIncomesController < ApplicationController
   def create
     @additional_income = AdditionalIncome.new(additional_income_params)
     @additional_income.user_email = @current_user_email
+    @additional_income.date = Date.current if @additional_income.date.blank?
 
     ActiveRecord::Base.transaction do
       @additional_income.save!

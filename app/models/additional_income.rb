@@ -3,7 +3,12 @@ class AdditionalIncome < ApplicationRecord
     space_rental: 0,
     events: 1,
     initial_balance: 2,
-    other: 3
+    other: 3,
+    late_fees: 4,
+    merchandise: 5,
+    plan_upgrade: 6,
+    owner_contribution: 7,
+    financial_yields: 8
   }
 
   enum :payment_method, {

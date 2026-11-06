@@ -5,7 +5,12 @@ class Expense < ApplicationRecord
     payroll: 2,
     maintenance: 3,
     commission: 4,
-    other: 5
+    other: 5,
+    event_participation: 6,
+    celebrations: 7,
+    personal_withdrawals: 8,
+    inventory_purchases: 9,
+    reconciliations: 10
   }
 
   enum :payment_method, {
